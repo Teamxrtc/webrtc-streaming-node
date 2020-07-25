@@ -1855,27 +1855,27 @@ def CheckChangeOnUpload(input_api, output_api):
   return results
 
 
-def GetTryServerMasterForBot(bot):
-  """Returns the Try Server master for the given bot.
+def GetTryServerMainForBot(bot):
+  """Returns the Try Server main for the given bot.
 
-  It tries to guess the master from the bot name, but may still fail
-  and return None.  There is no longer a default master.
+  It tries to guess the main from the bot name, but may still fail
+  and return None.  There is no longer a default main.
   """
   # Potentially ambiguous bot names are listed explicitly.
-  master_map = {
+  main_map = {
       'chromium_presubmit': 'tryserver.chromium.linux',
       'blink_presubmit': 'tryserver.chromium.linux',
       'tools_build_presubmit': 'tryserver.chromium.linux',
   }
-  master = master_map.get(bot)
-  if not master:
+  main = main_map.get(bot)
+  if not main:
     if 'linux' in bot or 'android' in bot or 'presubmit' in bot:
-      master = 'tryserver.chromium.linux'
+      main = 'tryserver.chromium.linux'
     elif 'win' in bot:
-      master = 'tryserver.chromium.win'
+      main = 'tryserver.chromium.win'
     elif 'mac' in bot or 'ios' in bot:
-      master = 'tryserver.chromium.mac'
-  return master
+      main = 'tryserver.chromium.mac'
+  return main
 
 
 def GetDefaultTryConfigs(bots):
@@ -1884,10 +1884,10 @@ def GetDefaultTryConfigs(bots):
 
   builders_and_tests = dict((bot, set(['defaulttests'])) for bot in bots)
 
-  # Build up the mapping from tryserver master to bot/test.
+  # Build up the mapping from tryserver main to bot/test.
   out = dict()
   for bot, tests in builders_and_tests.iteritems():
-    out.setdefault(GetTryServerMasterForBot(bot), {})[bot] = tests
+    out.setdefault(GetTryServerMainForBot(bot), {})[bot] = tests
   return out
 
 
@@ -1910,7 +1910,7 @@ def CheckChangeOnCommit(input_api, output_api):
   return results
 
 
-def GetPreferredTryMasters(project, change):
+def GetPreferredTryMains(project, change):
   import json
   import os.path
   import platform
@@ -1921,17 +1921,17 @@ def GetPreferredTryMasters(project, change):
   # commit_queue.py below is a script in depot_tools directory, which has a
   # 'builders' command to retrieve a list of CQ builders from the CQ config.
   is_win = platform.system() == 'Windows'
-  masters = json.loads(subprocess.check_output(
+  mains = json.loads(subprocess.check_output(
       ['commit_queue', 'builders', cq_config_path], shell=is_win))
 
   try_config = {}
-  for master in masters:
-    try_config.setdefault(master, {})
-    for builder in masters[master]:
+  for main in mains:
+    try_config.setdefault(main, {})
+    for builder in mains[main]:
       # Do not trigger presubmit builders, since they're likely to fail
       # (e.g. OWNERS checks before finished code review), and we're
       # running local presubmit anyway.
       if 'presubmit' not in builder:
-        try_config[master][builder] = ['defaulttests']
+        try_config[main][builder] = ['defaulttests']
 
   return try_config

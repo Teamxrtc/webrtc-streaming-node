@@ -9,7 +9,7 @@ Usage:
   $ depot-tools-auth login https://cr-buildbucket.appspot.com
   $ buildbucket.py \
     put \
-    --bucket master.tryserver.chromium.linux \
+    --bucket main.tryserver.chromium.linux \
     --builder my-builder \
 
   Puts a build into buildbucket for my-builder on tryserver.chromium.linux.
@@ -52,8 +52,8 @@ def main(argv):
     '-b',
     '--bucket',
     help=(
-      'The bucket to schedule the build on. Typically the master name, e.g.'
-      ' master.tryserver.chromium.linux.'
+      'The bucket to schedule the build on. Typically the main name, e.g.'
+      ' main.tryserver.chromium.linux.'
     ),
     required=True,
   )

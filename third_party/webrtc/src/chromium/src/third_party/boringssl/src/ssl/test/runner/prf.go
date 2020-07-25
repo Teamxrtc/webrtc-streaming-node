@@ -15,8 +15,8 @@ import (
 	"hash"
 )
 
-// Split a premaster secret in two as specified in RFC 4346, section 5.
-func splitPreMasterSecret(secret []byte) (s1, s2 []byte) {
+// Split a premain secret in two as specified in RFC 4346, section 5.
+func splitPreMainSecret(secret []byte) (s1, s2 []byte) {
 	s1 = secret[0 : (len(secret)+1)/2]
 	s2 = secret[len(secret)/2:]
 	return
@@ -56,7 +56,7 @@ func prf10(result, secret, label, seed []byte) {
 	copy(labelAndSeed, label)
 	copy(labelAndSeed[len(label):], seed)
 
-	s1, s2 := splitPreMasterSecret(secret)
+	s1, s2 := splitPreMainSecret(secret)
 	pHash(result, s1, labelAndSeed, hashMD5)
 	result2 := make([]byte, len(result))
 	pHash(result2, s2, labelAndSeed, hashSHA1)
@@ -112,12 +112,12 @@ func prf30(result, secret, label, seed []byte) {
 
 const (
 	tlsRandomLength      = 32 // Length of a random nonce in TLS 1.1.
-	masterSecretLength   = 48 // Length of a master secret in TLS 1.1.
+	mainSecretLength   = 48 // Length of a main secret in TLS 1.1.
 	finishedVerifyLength = 12 // Length of verify_data in a Finished message.
 )
 
-var masterSecretLabel = []byte("master secret")
-var extendedMasterSecretLabel = []byte("extended master secret")
+var mainSecretLabel = []byte("main secret")
+var extendedMainSecretLabel = []byte("extended main secret")
 var keyExpansionLabel = []byte("key expansion")
 var clientFinishedLabel = []byte("client finished")
 var serverFinishedLabel = []byte("server finished")
@@ -140,37 +140,37 @@ func prfForVersion(version uint16, suite *cipherSuite) func(result, secret, labe
 	}
 }
 
-// masterFromPreMasterSecret generates the master secret from the pre-master
+// mainFromPreMainSecret generates the main secret from the pre-main
 // secret. See http://tools.ietf.org/html/rfc5246#section-8.1
-func masterFromPreMasterSecret(version uint16, suite *cipherSuite, preMasterSecret, clientRandom, serverRandom []byte) []byte {
+func mainFromPreMainSecret(version uint16, suite *cipherSuite, preMainSecret, clientRandom, serverRandom []byte) []byte {
 	var seed [tlsRandomLength * 2]byte
 	copy(seed[0:len(clientRandom)], clientRandom)
 	copy(seed[len(clientRandom):], serverRandom)
-	masterSecret := make([]byte, masterSecretLength)
-	prfForVersion(version, suite)(masterSecret, preMasterSecret, masterSecretLabel, seed[0:])
-	return masterSecret
+	mainSecret := make([]byte, mainSecretLength)
+	prfForVersion(version, suite)(mainSecret, preMainSecret, mainSecretLabel, seed[0:])
+	return mainSecret
 }
 
-// extendedMasterFromPreMasterSecret generates the master secret from the
-// pre-master secret when the Triple Handshake fix is in effect. See
+// extendedMainFromPreMainSecret generates the main secret from the
+// pre-main secret when the Triple Handshake fix is in effect. See
 // https://tools.ietf.org/html/draft-ietf-tls-session-hash-01
-func extendedMasterFromPreMasterSecret(version uint16, suite *cipherSuite, preMasterSecret []byte, h finishedHash) []byte {
-	masterSecret := make([]byte, masterSecretLength)
-	prfForVersion(version, suite)(masterSecret, preMasterSecret, extendedMasterSecretLabel, h.Sum())
-	return masterSecret
+func extendedMainFromPreMainSecret(version uint16, suite *cipherSuite, preMainSecret []byte, h finishedHash) []byte {
+	mainSecret := make([]byte, mainSecretLength)
+	prfForVersion(version, suite)(mainSecret, preMainSecret, extendedMainSecretLabel, h.Sum())
+	return mainSecret
 }
 
-// keysFromMasterSecret generates the connection keys from the master
+// keysFromMainSecret generates the connection keys from the main
 // secret, given the lengths of the MAC key, cipher key and IV, as defined in
 // RFC 2246, section 6.3.
-func keysFromMasterSecret(version uint16, suite *cipherSuite, masterSecret, clientRandom, serverRandom []byte, macLen, keyLen, ivLen int) (clientMAC, serverMAC, clientKey, serverKey, clientIV, serverIV []byte) {
+func keysFromMainSecret(version uint16, suite *cipherSuite, mainSecret, clientRandom, serverRandom []byte, macLen, keyLen, ivLen int) (clientMAC, serverMAC, clientKey, serverKey, clientIV, serverIV []byte) {
 	var seed [tlsRandomLength * 2]byte
 	copy(seed[0:len(clientRandom)], serverRandom)
 	copy(seed[len(serverRandom):], clientRandom)
 
 	n := 2*macLen + 2*keyLen + 2*ivLen
 	keyMaterial := make([]byte, n)
-	prfForVersion(version, suite)(keyMaterial, masterSecret, keyExpansionLabel, seed[0:])
+	prfForVersion(version, suite)(keyMaterial, mainSecret, keyExpansionLabel, seed[0:])
 	clientMAC = keyMaterial[:macLen]
 	keyMaterial = keyMaterial[macLen:]
 	serverMAC = keyMaterial[:macLen]
@@ -265,25 +265,25 @@ func (h finishedHash) Sum() []byte {
 // finishedSum30 calculates the contents of the verify_data member of a SSLv3
 // Finished message given the MD5 and SHA1 hashes of a set of handshake
 // messages.
-func finishedSum30(md5, sha1 hash.Hash, masterSecret []byte, magic []byte) []byte {
+func finishedSum30(md5, sha1 hash.Hash, mainSecret []byte, magic []byte) []byte {
 	md5.Write(magic)
-	md5.Write(masterSecret)
+	md5.Write(mainSecret)
 	md5.Write(ssl30Pad1[:])
 	md5Digest := md5.Sum(nil)
 
 	md5.Reset()
-	md5.Write(masterSecret)
+	md5.Write(mainSecret)
 	md5.Write(ssl30Pad2[:])
 	md5.Write(md5Digest)
 	md5Digest = md5.Sum(nil)
 
 	sha1.Write(magic)
-	sha1.Write(masterSecret)
+	sha1.Write(mainSecret)
 	sha1.Write(ssl30Pad1[:40])
 	sha1Digest := sha1.Sum(nil)
 
 	sha1.Reset()
-	sha1.Write(masterSecret)
+	sha1.Write(mainSecret)
 	sha1.Write(ssl30Pad2[:40])
 	sha1.Write(sha1Digest)
 	sha1Digest = sha1.Sum(nil)
@@ -299,25 +299,25 @@ var ssl3ServerFinishedMagic = [4]byte{0x53, 0x52, 0x56, 0x52}
 
 // clientSum returns the contents of the verify_data member of a client's
 // Finished message.
-func (h finishedHash) clientSum(masterSecret []byte) []byte {
+func (h finishedHash) clientSum(mainSecret []byte) []byte {
 	if h.version == VersionSSL30 {
-		return finishedSum30(h.clientMD5, h.client, masterSecret, ssl3ClientFinishedMagic[:])
+		return finishedSum30(h.clientMD5, h.client, mainSecret, ssl3ClientFinishedMagic[:])
 	}
 
 	out := make([]byte, finishedVerifyLength)
-	h.prf(out, masterSecret, clientFinishedLabel, h.Sum())
+	h.prf(out, mainSecret, clientFinishedLabel, h.Sum())
 	return out
 }
 
 // serverSum returns the contents of the verify_data member of a server's
 // Finished message.
-func (h finishedHash) serverSum(masterSecret []byte) []byte {
+func (h finishedHash) serverSum(mainSecret []byte) []byte {
 	if h.version == VersionSSL30 {
-		return finishedSum30(h.serverMD5, h.server, masterSecret, ssl3ServerFinishedMagic[:])
+		return finishedSum30(h.serverMD5, h.server, mainSecret, ssl3ServerFinishedMagic[:])
 	}
 
 	out := make([]byte, finishedVerifyLength)
-	h.prf(out, masterSecret, serverFinishedLabel, h.Sum())
+	h.prf(out, mainSecret, serverFinishedLabel, h.Sum())
 	return out
 }
 
@@ -339,7 +339,7 @@ func (h finishedHash) selectClientCertSignatureAlgorithm(serverList, clientList 
 
 // hashForClientCertificate returns a digest, hash function, and TLS 1.2 hash
 // id suitable for signing by a TLS client certificate.
-func (h finishedHash) hashForClientCertificate(signatureAndHash signatureAndHash, masterSecret []byte) ([]byte, crypto.Hash, error) {
+func (h finishedHash) hashForClientCertificate(signatureAndHash signatureAndHash, mainSecret []byte) ([]byte, crypto.Hash, error) {
 	if h.version == VersionSSL30 {
 		if signatureAndHash.signature != signatureRSA {
 			return nil, 0, errors.New("tls: unsupported signature type for client certificate")
@@ -349,7 +349,7 @@ func (h finishedHash) hashForClientCertificate(signatureAndHash signatureAndHash
 		md5Hash.Write(h.buffer)
 		sha1Hash := sha1.New()
 		sha1Hash.Write(h.buffer)
-		return finishedSum30(md5Hash, sha1Hash, masterSecret, nil), crypto.MD5SHA1, nil
+		return finishedSum30(md5Hash, sha1Hash, mainSecret, nil), crypto.MD5SHA1, nil
 	}
 	if h.version >= VersionTLS12 {
 		hashAlg, err := lookupTLSHash(signatureAndHash.hash)

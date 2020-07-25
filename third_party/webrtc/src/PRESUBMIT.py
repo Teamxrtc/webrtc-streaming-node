@@ -341,25 +341,25 @@ def CheckChangeOnCommit(input_api, output_api):
 
 
 # pylint: disable=W0613
-def GetPreferredTryMasters(project, change):
+def GetPreferredTryMains(project, change):
   cq_config_path = os.path.join(
       change.RepositoryRoot(), 'infra', 'config', 'cq.cfg')
   # commit_queue.py below is a script in depot_tools directory, which has a
   # 'builders' command to retrieve a list of CQ builders from the CQ config.
   is_win = platform.system() == 'Windows'
-  masters = json.loads(subprocess.check_output(
+  mains = json.loads(subprocess.check_output(
       ['commit_queue', 'builders', cq_config_path], shell=is_win))
 
   try_config = {}
-  for master in masters:
-    try_config.setdefault(master, {})
-    for builder in masters[master]:
+  for main in mains:
+    try_config.setdefault(main, {})
+    for builder in mains[main]:
       if 'presubmit' in builder:
         # Do not trigger presubmit builders, since they're likely to fail
         # (e.g. OWNERS checks before finished code review), and we're running
         # local presubmit anyway.
         pass
       else:
-        try_config[master][builder] = ['defaulttests']
+        try_config[main][builder] = ['defaulttests']
 
   return try_config

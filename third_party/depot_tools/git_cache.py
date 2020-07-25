@@ -441,7 +441,7 @@ class Mirror(object):
   def update_bootstrap(self, prune=False):
     # The files are named <git number>.zip
     gen_number = subprocess.check_output(
-        [self.git_exe, 'number', 'master'], cwd=self.mirror_path).strip()
+        [self.git_exe, 'number', 'main'], cwd=self.mirror_path).strip()
     # Run Garbage Collect to compress packfile.
     self.RunGit(['gc', '--prune=all'])
     # Creating a temp file and then deleting it ensures we can use this name.

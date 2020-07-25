@@ -566,8 +566,8 @@ class GitCheckout(CheckoutBase):
     self.working_branch = 'working_branch'
     # There is no reason to not hardcode origin.
     self.remote = 'origin'
-    # There is no reason to not hardcode master.
-    self.master_branch = 'master'
+    # There is no reason to not hardcode main.
+    self.main_branch = 'main'
 
   def prepare(self, revision):
     """Resets the git repository in a clean state.
@@ -603,9 +603,9 @@ class GitCheckout(CheckoutBase):
       self._check_call_git(['checkout', '--force', '--quiet', revision])
     else:
       branches, active = self._branches()
-      if active != self.master_branch:
+      if active != self.main_branch:
         self._check_call_git(
-            ['checkout', '--force', '--quiet', self.master_branch])
+            ['checkout', '--force', '--quiet', self.main_branch])
       self._sync_remote_branch()
 
       if self.working_branch in branches:
@@ -614,8 +614,8 @@ class GitCheckout(CheckoutBase):
 
   def _sync_remote_branch(self):
     """Syncs the remote branch."""
-    # We do a 'git pull origin master:refs/remotes/origin/master' instead of
-    # 'git pull origin master' because from the manpage for git-pull:
+    # We do a 'git pull origin main:refs/remotes/origin/main' instead of
+    # 'git pull origin main' because from the manpage for git-pull:
     #   A parameter <ref> without a colon is equivalent to <ref>: when
     #   pulling/fetching, so it merges <ref> into the current branch without
     #   storing the remote branch anywhere locally.

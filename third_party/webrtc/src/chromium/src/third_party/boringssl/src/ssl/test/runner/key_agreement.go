@@ -23,7 +23,7 @@ var errClientKeyExchange = errors.New("tls: invalid ClientKeyExchange message")
 var errServerKeyExchange = errors.New("tls: invalid ServerKeyExchange message")
 
 // rsaKeyAgreement implements the standard TLS key agreement where the client
-// encrypts the pre-master secret to the server's public key.
+// encrypts the pre-main secret to the server's public key.
 type rsaKeyAgreement struct {
 	version       uint16
 	clientVersion uint16
@@ -95,8 +95,8 @@ func (ka *rsaKeyAgreement) generateServerKeyExchange(config *Config, cert *Certi
 }
 
 func (ka *rsaKeyAgreement) processClientKeyExchange(config *Config, cert *Certificate, ckx *clientKeyExchangeMsg, version uint16) ([]byte, error) {
-	preMasterSecret := make([]byte, 48)
-	_, err := io.ReadFull(config.rand(), preMasterSecret[2:])
+	preMainSecret := make([]byte, 48)
+	_, err := io.ReadFull(config.rand(), preMainSecret[2:])
 	if err != nil {
 		return nil, err
 	}
@@ -118,18 +118,18 @@ func (ka *rsaKeyAgreement) processClientKeyExchange(config *Config, cert *Certif
 	if ka.exportKey != nil {
 		key = ka.exportKey
 	}
-	err = rsa.DecryptPKCS1v15SessionKey(config.rand(), key, ciphertext, preMasterSecret)
+	err = rsa.DecryptPKCS1v15SessionKey(config.rand(), key, ciphertext, preMainSecret)
 	if err != nil {
 		return nil, err
 	}
 	// This check should be done in constant-time, but this is a testing
 	// implementation. See the discussion at the end of section 7.4.7.1 of
 	// RFC 4346.
-	vers := uint16(preMasterSecret[0])<<8 | uint16(preMasterSecret[1])
+	vers := uint16(preMainSecret[0])<<8 | uint16(preMainSecret[1])
 	if ka.clientVersion != vers {
-		return nil, errors.New("tls: invalid version in RSA premaster")
+		return nil, errors.New("tls: invalid version in RSA premain")
 	}
-	return preMasterSecret, nil
+	return preMainSecret, nil
 }
 
 func (ka *rsaKeyAgreement) processServerKeyExchange(config *Config, clientHello *clientHelloMsg, serverHello *serverHelloMsg, cert *x509.Certificate, skx *serverKeyExchangeMsg) error {
@@ -137,20 +137,20 @@ func (ka *rsaKeyAgreement) processServerKeyExchange(config *Config, clientHello 
 }
 
 func (ka *rsaKeyAgreement) generateClientKeyExchange(config *Config, clientHello *clientHelloMsg, cert *x509.Certificate) ([]byte, *clientKeyExchangeMsg, error) {
-	preMasterSecret := make([]byte, 48)
+	preMainSecret := make([]byte, 48)
 	vers := clientHello.vers
 	if config.Bugs.RsaClientKeyExchangeVersion != 0 {
 		vers = config.Bugs.RsaClientKeyExchangeVersion
 	}
 	vers = versionToWire(vers, clientHello.isDTLS)
-	preMasterSecret[0] = byte(vers >> 8)
-	preMasterSecret[1] = byte(vers)
-	_, err := io.ReadFull(config.rand(), preMasterSecret[2:])
+	preMainSecret[0] = byte(vers >> 8)
+	preMainSecret[1] = byte(vers)
+	_, err := io.ReadFull(config.rand(), preMainSecret[2:])
 	if err != nil {
 		return nil, nil, err
 	}
 
-	encrypted, err := rsa.EncryptPKCS1v15(config.rand(), cert.PublicKey.(*rsa.PublicKey), preMasterSecret)
+	encrypted, err := rsa.EncryptPKCS1v15(config.rand(), cert.PublicKey.(*rsa.PublicKey), preMainSecret)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -163,7 +163,7 @@ func (ka *rsaKeyAgreement) generateClientKeyExchange(config *Config, clientHello
 	} else {
 		ckx.ciphertext = encrypted
 	}
-	return preMasterSecret, ckx, nil
+	return preMainSecret, ckx, nil
 }
 
 // sha1Hash calculates a SHA1 hash over the given byte slices.
@@ -411,7 +411,7 @@ func (ka *signedKeyAgreement) verifyParameters(config *Config, clientHello *clie
 
 // ecdheRSAKeyAgreement implements a TLS key agreement where the server
 // generates a ephemeral EC public/private key pair and signs it. The
-// pre-master secret is then calculated using ECDH. The signature may
+// pre-main secret is then calculated using ECDH. The signature may
 // either be ECDSA or RSA.
 type ecdheKeyAgreement struct {
 	auth       keyAgreementAuthentication
@@ -492,11 +492,11 @@ func (ka *ecdheKeyAgreement) processClientKeyExchange(config *Config, cert *Cert
 		return nil, errClientKeyExchange
 	}
 	x, _ = ka.curve.ScalarMult(x, y, ka.privateKey)
-	preMasterSecret := make([]byte, (ka.curve.Params().BitSize+7)>>3)
+	preMainSecret := make([]byte, (ka.curve.Params().BitSize+7)>>3)
 	xBytes := x.Bytes()
-	copy(preMasterSecret[len(preMasterSecret)-len(xBytes):], xBytes)
+	copy(preMainSecret[len(preMainSecret)-len(xBytes):], xBytes)
 
-	return preMasterSecret, nil
+	return preMainSecret, nil
 }
 
 func (ka *ecdheKeyAgreement) processServerKeyExchange(config *Config, clientHello *clientHelloMsg, serverHello *serverHelloMsg, cert *x509.Certificate, skx *serverKeyExchangeMsg) error {
@@ -536,9 +536,9 @@ func (ka *ecdheKeyAgreement) generateClientKeyExchange(config *Config, clientHel
 		return nil, nil, err
 	}
 	x, _ := ka.curve.ScalarMult(ka.x, ka.y, priv)
-	preMasterSecret := make([]byte, (ka.curve.Params().BitSize+7)>>3)
+	preMainSecret := make([]byte, (ka.curve.Params().BitSize+7)>>3)
 	xBytes := x.Bytes()
-	copy(preMasterSecret[len(preMasterSecret)-len(xBytes):], xBytes)
+	copy(preMainSecret[len(preMainSecret)-len(xBytes):], xBytes)
 
 	serialized := elliptic.Marshal(ka.curve, mx, my)
 
@@ -547,12 +547,12 @@ func (ka *ecdheKeyAgreement) generateClientKeyExchange(config *Config, clientHel
 	ckx.ciphertext[0] = byte(len(serialized))
 	copy(ckx.ciphertext[1:], serialized)
 
-	return preMasterSecret, ckx, nil
+	return preMainSecret, ckx, nil
 }
 
 // dheRSAKeyAgreement implements a TLS key agreement where the server generates
 // an ephemeral Diffie-Hellman public/private key pair and signs it. The
-// pre-master secret is then calculated using Diffie-Hellman.
+// pre-main secret is then calculated using Diffie-Hellman.
 type dheKeyAgreement struct {
 	auth    keyAgreementAuthentication
 	p, g    *big.Int
@@ -667,7 +667,7 @@ func (ka *dheKeyAgreement) generateClientKeyExchange(config *Config, clientHello
 	if err != nil {
 		return nil, nil, err
 	}
-	preMasterSecret := new(big.Int).Exp(ka.yTheirs, xOurs, ka.p).Bytes()
+	preMainSecret := new(big.Int).Exp(ka.yTheirs, xOurs, ka.p).Bytes()
 
 	yOurs := new(big.Int).Exp(ka.g, xOurs, ka.p)
 	yBytes := yOurs.Bytes()
@@ -677,7 +677,7 @@ func (ka *dheKeyAgreement) generateClientKeyExchange(config *Config, clientHello
 	ckx.ciphertext[1] = byte(len(yBytes))
 	copy(ckx.ciphertext[2:], yBytes)
 
-	return preMasterSecret, ckx, nil
+	return preMainSecret, ckx, nil
 }
 
 // nilKeyAgreement is a fake key agreement used to implement the plain PSK key
@@ -715,9 +715,9 @@ func (ka *nilKeyAgreement) generateClientKeyExchange(config *Config, clientHello
 	return nil, &clientKeyExchangeMsg{}, nil
 }
 
-// makePSKPremaster formats a PSK pre-master secret based on otherSecret from
+// makePSKPremain formats a PSK pre-main secret based on otherSecret from
 // the base key exchange and psk.
-func makePSKPremaster(otherSecret, psk []byte) []byte {
+func makePSKPremain(otherSecret, psk []byte) []byte {
 	out := make([]byte, 0, 2+len(otherSecret)+2+len(psk))
 	out = append(out, byte(len(otherSecret)>>8), byte(len(otherSecret)))
 	out = append(out, otherSecret...)
@@ -779,7 +779,7 @@ func (ka *pskKeyAgreement) processClientKeyExchange(config *Config, cert *Certif
 	}
 
 	// Process the remainder of the ClientKeyExchange to compute the base
-	// pre-master secret.
+	// pre-main secret.
 	newCkx := new(clientKeyExchangeMsg)
 	newCkx.ciphertext = ckx.ciphertext[2+identityLen:]
 	otherSecret, err := ka.base.processClientKeyExchange(config, cert, newCkx, version)
@@ -791,7 +791,7 @@ func (ka *pskKeyAgreement) processClientKeyExchange(config *Config, cert *Certif
 		// Special-case for the plain PSK key exchanges.
 		otherSecret = make([]byte, len(config.PreSharedKey))
 	}
-	return makePSKPremaster(otherSecret, config.PreSharedKey), nil
+	return makePSKPremain(otherSecret, config.PreSharedKey), nil
 }
 
 func (ka *pskKeyAgreement) processServerKeyExchange(config *Config, clientHello *clientHelloMsg, serverHello *serverHelloMsg, cert *x509.Certificate, skx *serverKeyExchangeMsg) error {
@@ -838,5 +838,5 @@ func (ka *pskKeyAgreement) generateClientKeyExchange(config *Config, clientHello
 	if otherSecret == nil {
 		otherSecret = make([]byte, len(config.PreSharedKey))
 	}
-	return makePSKPremaster(otherSecret, config.PreSharedKey), ckx, nil
+	return makePSKPremain(otherSecret, config.PreSharedKey), ckx, nil
 }

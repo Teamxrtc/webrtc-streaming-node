@@ -101,8 +101,8 @@ def main():
   parser.add_option('-t', '--token', default='[[FILENAME]]', dest='token',
                     help='Sets the token to be replaced for each file '
                     'in your command (default [[FILENAME]]).')
-  parser.add_option('-b', '--branch', default='origin/master', dest='branch',
-                    help='Sets what to diff to (default origin/master). Set '
+  parser.add_option('-b', '--branch', default='origin/main', dest='branch',
+                    help='Sets what to diff to (default origin/main). Set '
                     'to empty to diff workspace against HEAD.')
   opts, args = parser.parse_args()
 

@@ -159,7 +159,7 @@ class BatchApiRequest(object):
             method_config, request, global_params=global_params,
             upload_config=upload_config)
 
-        # Create the request and add it to our master list.
+        # Create the request and add it to our main list.
         api_request = self.ApiCall(
             http_request, self.retryable_codes, service, method_config)
         self.api_requests.append(api_request)

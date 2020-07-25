@@ -87,7 +87,7 @@ def WriteGitmodules(submods, gitless=False, rewrite_rules=None):
       continue
     if not submod_sha1:
       # We don't know what sha1 to register, so we have to infer it from the
-      # submodule's origin/master.
+      # submodule's origin/main.
       if not os.path.exists(os.path.join(submod, '.git')):
         # Not cloned yet
         subprocess.check_call(['git', 'clone', '-n', submod_url, submod])

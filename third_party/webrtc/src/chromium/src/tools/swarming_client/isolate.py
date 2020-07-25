@@ -164,22 +164,22 @@ def chromium_save_isolated(isolated, data, path_variables, algo):
   """Writes one or many .isolated files.
 
   This slightly increases the cold cache cost but greatly reduce the warm cache
-  cost by splitting low-churn files off the master .isolated file. It also
+  cost by splitting low-churn files off the main .isolated file. It also
   reduces overall isolateserver memcache consumption.
   """
-  slaves = []
+  subordinates = []
 
   def extract_into_included_isolated(prefix):
-    new_slave = {
+    new_subordinate = {
       'algo': data['algo'],
       'files': {},
       'version': data['version'],
     }
     for f in data['files'].keys():
       if f.startswith(prefix):
-        new_slave['files'][f] = data['files'].pop(f)
-    if new_slave['files']:
-      slaves.append(new_slave)
+        new_subordinate['files'][f] = data['files'].pop(f)
+    if new_subordinate['files']:
+      subordinates.append(new_subordinate)
 
   # Split test/data/ in its own .isolated file.
   extract_into_included_isolated(os.path.join('test', 'data', ''))
@@ -189,12 +189,12 @@ def chromium_save_isolated(isolated, data, path_variables, algo):
     extract_into_included_isolated(path_variables['PRODUCT_DIR'])
 
   files = []
-  for index, f in enumerate(slaves):
-    slavepath = isolated[:-len('.isolated')] + '.%d.isolated' % index
-    tools.write_json(slavepath, f, True)
+  for index, f in enumerate(subordinates):
+    subordinatepath = isolated[:-len('.isolated')] + '.%d.isolated' % index
+    tools.write_json(subordinatepath, f, True)
     data.setdefault('includes', []).append(
-        isolated_format.hash_file(slavepath, algo))
-    files.append(os.path.basename(slavepath))
+        isolated_format.hash_file(subordinatepath, algo))
+    files.append(os.path.basename(subordinatepath))
 
   files.extend(isolated_format.save_isolated(isolated, data))
   return files
@@ -263,7 +263,7 @@ class SavedState(Flattenable):
     # Algorithm used to generate the hash. The only supported value is at the
     # time of writting 'sha-1'.
     'algo',
-    # List of included .isolated files. Used to support/remember 'slave'
+    # List of included .isolated files. Used to support/remember 'subordinate'
     # .isolated files. Relative path to isolated_basedir.
     'child_isolated_files',
     # Cache of the processed command. This value is saved because .isolated

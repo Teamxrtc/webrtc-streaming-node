@@ -2368,8 +2368,8 @@ func addClientAuthTests() {
 	}
 }
 
-func addExtendedMasterSecretTests() {
-	const expectEMSFlag = "-expect-extended-master-secret"
+func addExtendedMainSecretTests() {
+	const expectEMSFlag = "-expect-extended-main-secret"
 
 	for _, with := range []bool{false, true} {
 		prefix := "No"
@@ -2390,20 +2390,20 @@ func addExtendedMasterSecretTests() {
 			for _, ver := range tlsVersions {
 				test := testCase{
 					testType: testType,
-					name:     prefix + "ExtendedMasterSecret-" + ver.name + suffix,
+					name:     prefix + "ExtendedMainSecret-" + ver.name + suffix,
 					config: Config{
 						MinVersion: ver.version,
 						MaxVersion: ver.version,
 						Bugs: ProtocolBugs{
-							NoExtendedMasterSecret:      !with,
-							RequireExtendedMasterSecret: with,
+							NoExtendedMainSecret:      !with,
+							RequireExtendedMainSecret: with,
 						},
 					},
 					flags:      flags,
 					shouldFail: ver.version == VersionSSL30 && with,
 				}
 				if test.shouldFail {
-					test.expectedLocalError = "extended master secret required but not supported by peer"
+					test.expectedLocalError = "extended main secret required but not supported by peer"
 				}
 				testCases = append(testCases, test)
 			}
@@ -2428,18 +2428,18 @@ func addExtendedMasterSecretTests() {
 
 				supportedConfig := Config{
 					Bugs: ProtocolBugs{
-						RequireExtendedMasterSecret: true,
+						RequireExtendedMainSecret: true,
 					},
 				}
 
 				noSupportConfig := Config{
 					Bugs: ProtocolBugs{
-						NoExtendedMasterSecret: true,
+						NoExtendedMainSecret: true,
 					},
 				}
 
 				test := testCase{
-					name:          "ExtendedMasterSecret-" + suffix,
+					name:          "ExtendedMainSecret-" + suffix,
 					resumeSession: true,
 				}
 
@@ -2462,7 +2462,7 @@ func addExtendedMasterSecretTests() {
 				switch suffix {
 				case "YesToYes-Client", "YesToYes-Server":
 					// When a session is resumed, it should
-					// still be aware that its master
+					// still be aware that its main
 					// secret was generated via EMS and
 					// thus it's safe to use tls-unique.
 					test.flags = []string{expectEMSFlag}
@@ -3417,7 +3417,7 @@ func addExtensionTests() {
 		config: Config{
 			SRTPProtectionProfiles: []uint16{SRTP_AES128_CM_HMAC_SHA1_80},
 			Bugs: ProtocolBugs{
-				SRTPMasterKeyIdentifer: "bogus",
+				SRTPMainKeyIdentifer: "bogus",
 			},
 		},
 		flags: []string{
@@ -4170,7 +4170,7 @@ func addTLSUniqueTests() {
 					testTLSUnique: true,
 					config: Config{
 						Bugs: ProtocolBugs{
-							NoExtendedMasterSecret: !hasEMS,
+							NoExtendedMainSecret: !hasEMS,
 						},
 					},
 				}
@@ -4179,7 +4179,7 @@ func addTLSUniqueTests() {
 					test.resumeSession = true
 					test.resumeConfig = &Config{
 						Bugs: ProtocolBugs{
-							NoExtendedMasterSecret: !hasEMS,
+							NoExtendedMainSecret: !hasEMS,
 						},
 					}
 				}
@@ -4388,7 +4388,7 @@ func main() {
 	addD5BugTests()
 	addExtensionTests()
 	addResumptionVersionTests()
-	addExtendedMasterSecretTests()
+	addExtendedMainSecretTests()
 	addRenegotiationTests()
 	addDTLSReplayTests()
 	addSigningHashTests()

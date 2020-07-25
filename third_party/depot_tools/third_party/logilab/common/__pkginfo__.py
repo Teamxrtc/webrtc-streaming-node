@@ -23,7 +23,7 @@ import os
 distname = 'logilab-common'
 modname = 'common'
 subpackage_of = 'logilab'
-subpackage_master = True
+subpackage_main = True
 
 numversion = (0, 63, 2)
 version = '.'.join([str(num) for num in numversion])

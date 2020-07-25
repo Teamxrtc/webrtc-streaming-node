@@ -176,12 +176,12 @@ class GIT(object):
 
   @staticmethod
   def GetBranchRef(cwd):
-    """Returns the full branch reference, e.g. 'refs/heads/master'."""
+    """Returns the full branch reference, e.g. 'refs/heads/main'."""
     return GIT.Capture(['symbolic-ref', 'HEAD'], cwd=cwd)
 
   @staticmethod
   def GetBranch(cwd):
-    """Returns the short branch name, e.g. 'master'."""
+    """Returns the short branch name, e.g. 'main'."""
     return GIT.ShortBranchName(GIT.GetBranchRef(cwd))
 
   @staticmethod
@@ -302,7 +302,7 @@ class GIT(object):
   @staticmethod
   def FetchUpstreamTuple(cwd):
     """Returns a tuple containg remote and remote ref,
-       e.g. 'origin', 'refs/heads/master'
+       e.g. 'origin', 'refs/heads/main'
        Tries to be intelligent and understand git-svn.
     """
     remote = '.'
@@ -337,10 +337,10 @@ class GIT(object):
         else:
           # Else, try to guess the origin remote.
           remote_branches = GIT.Capture(['branch', '-r'], cwd=cwd).split()
-          if 'origin/master' in remote_branches:
-            # Fall back on origin/master if it exits.
+          if 'origin/main' in remote_branches:
+            # Fall back on origin/main if it exits.
             remote = 'origin'
-            upstream_branch = 'refs/heads/master'
+            upstream_branch = 'refs/heads/main'
           elif 'origin/trunk' in remote_branches:
             # Fall back on origin/trunk if it exists. Generally a shared
             # git-svn clone
@@ -481,7 +481,7 @@ class GIT(object):
 
   @staticmethod
   def GetBlessedSha1ForSvnRev(cwd, rev):
-    """Returns a git commit hash from the master branch history that has
+    """Returns a git commit hash from the main branch history that has
     accurate .DEPS.git and git submodules.  To understand why this is more
     complicated than a simple call to `git svn find-rev`, refer to:
 

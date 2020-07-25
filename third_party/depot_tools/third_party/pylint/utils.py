@@ -414,7 +414,7 @@ class MessagesHandlerMixIn(object):
 
         by_checker = {}
         for checker in self.get_checkers():
-            if checker.name == 'master':
+            if checker.name == 'main':
                 if checker.options:
                     for section, options in checker.options_by_section():
                         if section is None:

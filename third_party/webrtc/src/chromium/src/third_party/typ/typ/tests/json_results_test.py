@@ -24,7 +24,7 @@ class TestMakeUploadRequest(unittest.TestCase):
         results = json_results.ResultSet()
         full_results = json_results.make_full_results([], 0, [], results)
         url, content_type, data = json_results.make_upload_request(
-            'localhost', 'fake_builder_name', 'fake_master', 'fake_test_type',
+            'localhost', 'fake_builder_name', 'fake_main', 'fake_test_type',
             full_results)
 
         self.assertEqual(
@@ -40,9 +40,9 @@ class TestMakeUploadRequest(unittest.TestCase):
              '\r\n'
              'fake_builder_name\r\n'
              '---J-S-O-N-R-E-S-U-L-T-S---B-O-U-N-D-A-R-Y-\r\n'
-             'Content-Disposition: form-data; name="master"\r\n'
+             'Content-Disposition: form-data; name="main"\r\n'
              '\r\n'
-             'fake_master\r\n'
+             'fake_main\r\n'
              '---J-S-O-N-R-E-S-U-L-T-S---B-O-U-N-D-A-R-Y-\r\n'
              'Content-Disposition: form-data; name="testtype"\r\n'
              '\r\n'

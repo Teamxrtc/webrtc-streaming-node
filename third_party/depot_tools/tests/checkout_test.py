@@ -233,7 +233,7 @@ class GitBaseTest(BaseTest):
     # Hackish to verify _branches() internal function.
     # pylint: disable=W0212
     self.assertEquals(
-        (['master', 'working_branch'], 'working_branch'),
+        (['main', 'working_branch'], 'working_branch'),
         co._branches())
 
     # Verify that the patch is applied even for read only checkout.
@@ -284,7 +284,7 @@ class GitCheckout(GitBaseTest):
     return checkout.GitCheckout(
       root_dir=self.root_dir,
       project_name=self.name,
-      remote_branch='master',
+      remote_branch='main',
       git_url=os.path.join(self.FAKE_REPOS.git_root,
                            self.FAKE_REPOS.TEST_GIT_REPO),
       commit_user=self.usr,

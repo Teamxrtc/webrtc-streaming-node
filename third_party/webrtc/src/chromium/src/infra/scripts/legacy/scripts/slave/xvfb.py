@@ -12,23 +12,23 @@ import subprocess
 import tempfile
 import time
 
-def _XvfbDisplayIndex(slave_build_name):
+def _XvfbDisplayIndex(subordinate_build_name):
   return '9'
 
-def _XvfbPidFilename(slave_build_name):
+def _XvfbPidFilename(subordinate_build_name):
   """Returns the filename to the Xvfb pid file.  This name is unique for each
   builder. This is used by the linux builders."""
   return os.path.join(tempfile.gettempdir(),
-                      'xvfb-' + _XvfbDisplayIndex(slave_build_name)  + '.pid')
+                      'xvfb-' + _XvfbDisplayIndex(subordinate_build_name)  + '.pid')
 
 
-def StartVirtualX(slave_build_name, build_dir, with_wm=True, server_dir=None):
+def StartVirtualX(subordinate_build_name, build_dir, with_wm=True, server_dir=None):
   """Start a virtual X server and set the DISPLAY environment variable so sub
   processes will use the virtual X server.  Also start openbox. This only works
   on Linux and assumes that xvfb and openbox are installed.
 
   Args:
-    slave_build_name: The name of the build that we use for the pid file.
+    subordinate_build_name: The name of the build that we use for the pid file.
         E.g., webkit-rel-linux.
     build_dir: The directory where binaries are produced.  If this is non-empty,
         we try running xdisplaycheck from |build_dir| to verify our X
@@ -38,13 +38,13 @@ def StartVirtualX(slave_build_name, build_dir, with_wm=True, server_dir=None):
   """
   # We use a pid file to make sure we don't have any xvfb processes running
   # from a previous test run.
-  StopVirtualX(slave_build_name)
+  StopVirtualX(subordinate_build_name)
 
   xdisplaycheck_path = None
   if build_dir:
     xdisplaycheck_path = os.path.join(build_dir, 'xdisplaycheck')
 
-  display = ':%s' % _XvfbDisplayIndex(slave_build_name)
+  display = ':%s' % _XvfbDisplayIndex(subordinate_build_name)
   # Note we don't add the optional screen here (+ '.0')
   os.environ['DISPLAY'] = display
 
@@ -75,7 +75,7 @@ def StartVirtualX(slave_build_name, build_dir, with_wm=True, server_dir=None):
   proc = subprocess.Popen([cmd, display, '-screen', '0', '1024x768x24', '-ac',
                            '-dpi', '96'],
                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-  xvfb_pid_filename = _XvfbPidFilename(slave_build_name)
+  xvfb_pid_filename = _XvfbPidFilename(subordinate_build_name)
   open(xvfb_pid_filename, 'w').write(str(proc.pid))
 
   # Verify that Xvfb has started by using xdisplaycheck.
@@ -121,11 +121,11 @@ def StartVirtualX(slave_build_name, build_dir, with_wm=True, server_dir=None):
 
 
 
-def StopVirtualX(slave_build_name):
+def StopVirtualX(subordinate_build_name):
   """Try and stop the virtual X server if one was started with StartVirtualX.
   When the X server dies, it takes down the window manager with it.
   If a virtual x server is not running, this method does nothing."""
-  xvfb_pid_filename = _XvfbPidFilename(slave_build_name)
+  xvfb_pid_filename = _XvfbPidFilename(subordinate_build_name)
   if os.path.exists(xvfb_pid_filename):
     xvfb_pid = int(open(xvfb_pid_filename).read())
     print 'Stopping Xvfb with pid %d ...' % xvfb_pid

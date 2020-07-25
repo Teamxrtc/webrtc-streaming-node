@@ -14,7 +14,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from pylib import constants
 
 
-SLAVE_SCRIPTS_DIR = os.path.join(bb_utils.BB_BUILD_DIR, 'scripts', 'slave')
+SLAVE_SCRIPTS_DIR = os.path.join(bb_utils.BB_BUILD_DIR, 'scripts', 'subordinate')
 VALID_HOST_TESTS = set(['check_webview_licenses'])
 
 DIR_BUILD_ROOT = os.path.dirname(constants.DIR_SOURCE_ROOT)

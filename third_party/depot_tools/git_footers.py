@@ -78,9 +78,9 @@ def get_position(footers):
   Returns:
     A tuple of the branch and the position on that branch. For example,
 
-    Cr-Commit-Position: refs/heads/master@{#292272}
+    Cr-Commit-Position: refs/heads/main@{#292272}
 
-    would give the return value ('refs/heads/master', 292272).  If
+    would give the return value ('refs/heads/main', 292272).  If
     Cr-Commit-Position is not defined, we try to infer the ref and position
     from git-svn-id. The position number can be None if it was not inferrable.
   """
@@ -101,12 +101,12 @@ def get_position(footers):
       return ('refs/heads/candidates', match.group(2))
     if re.match(r'.*https?://v8\.googlecode\.com/svn/branches/bleeding_edge',
                 match.group(1)):
-      return ('refs/heads/master', match.group(2))
+      return ('refs/heads/main', match.group(2))
 
     # Assume that any trunk svn revision will match the commit-position
     # semantics.
     if re.match('.*/trunk.*$', match.group(1)):
-      return ('refs/heads/master', match.group(2))
+      return ('refs/heads/main', match.group(2))
 
     # But for now only support faking branch-heads for chrome.
     branch_match = re.match('.*/chrome/branches/([\w/-]+)/src$', match.group(1))

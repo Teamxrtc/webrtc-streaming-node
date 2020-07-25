@@ -7,7 +7,7 @@
 
 This script wraps the `gn check` command in the facade needed for the
 'ScriptTest' step class of the chromium recipe_module
-(see scripts/slave/recipe_modules/chromium/steps.py in the build repo).
+(see scripts/subordinate/recipe_modules/chromium/steps.py in the build repo).
 
 The script takes no arguments.
 """

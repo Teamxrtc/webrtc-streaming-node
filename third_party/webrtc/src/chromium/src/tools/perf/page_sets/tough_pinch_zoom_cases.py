@@ -117,7 +117,7 @@ class BlogSpotPage(ToughPinchZoomCasesPage):
 
   def __init__(self, page_set):
     super(BlogSpotPage, self).__init__(
-      url='http://googlewebmastercentral.blogspot.com/',
+      url='http://googlewebmaincentral.blogspot.com/',
       page_set=page_set, name='Blogger')
 
   def RunNavigateSteps(self, action_runner):

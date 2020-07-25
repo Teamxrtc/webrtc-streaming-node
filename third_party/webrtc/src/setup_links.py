@@ -15,7 +15,7 @@ symlinks to files and directories. This script handles the setup of symlinks to
 achieve this.
 
 It also handles cleanup of the legacy Subversion-based approach that was used
-before Chrome switched over their master repo from Subversion to Git.
+before Chrome switched over their main repo from Subversion to Git.
 """
 
 

@@ -119,7 +119,7 @@ def convert_svn_revision(dep_path, revision):
   revision = int(revision)
   latest_svn_rev = None
   with open(os.devnull, 'w') as devnull:
-    for ref in ('HEAD', 'origin/master'):
+    for ref in ('HEAD', 'origin/main'):
       try:
         log_p = Popen(['git', 'log', ref],
                       cwd=dep_path, stdout=PIPE, stderr=devnull)

@@ -157,13 +157,13 @@ class FakeSwarmBot(object):
           time.sleep(manifest['come_back'])
           continue
 
-        if commands == ['UpdateSlave']:
+        if commands == ['UpdateSubordinate']:
           # Calculate the proper SHA-1 and loop again.
           # This could happen if the Swarming server is upgraded while this
           # script runs.
           self._attributes['version'] = calculate_version(
               manifest['commands'][0]['args'])
-          self._events.put('update_slave')
+          self._events.put('update_subordinate')
           continue
 
         if commands != ['RunManifest']:
@@ -217,7 +217,7 @@ class FakeSwarmBot(object):
           self._events.put(time.time() - start)
     finally:
       try:
-        # Unregister itself. Otherwise the server will have tons of fake slaves
+        # Unregister itself. Otherwise the server will have tons of fake subordinates
         # that the admin will have to remove manually.
         response = net.url_open(
             self._swarming + '/delete_machine_stats',
@@ -240,7 +240,7 @@ def main():
   parser.add_option(
       '--suffix', metavar='NAME', default='', help='Bot suffix name to use')
   swarming.add_filter_options(parser)
-  # Use improbable values to reduce the chance of interferring with real slaves.
+  # Use improbable values to reduce the chance of interferring with real subordinates.
   parser.set_defaults(
       dimensions=[
         ('cpu', ['arm36']),
@@ -250,8 +250,8 @@ def main():
 
   group = optparse.OptionGroup(parser, 'Load generated')
   group.add_option(
-      '--slaves', type='int', default=300, metavar='N',
-      help='Number of swarm bot slaves, default: %default')
+      '--subordinates', type='int', default=300, metavar='N',
+      help='Number of swarm bot subordinates, default: %default')
   group.add_option(
       '-c', '--consume', type='float', default=60., metavar='N',
       help='Duration (s) for consuming a request, default: %default')
@@ -283,8 +283,8 @@ def main():
   swarming.process_filter_options(parser, options)
 
   print(
-      'Running %d slaves, each task lasting %.1fs' % (
-        options.slaves, options.consume))
+      'Running %d subordinates, each task lasting %.1fs' % (
+        options.subordinates, options.consume))
   print('Ctrl-C to exit.')
   print('[processing/processed/bots]')
   columns = [('processing', 0), ('processed', 0), ('bots', 0)]
@@ -296,30 +296,30 @@ def main():
   hostname = get_hostname()
   if options.suffix:
     hostname += '-' + options.suffix
-  slaves = [
+  subordinates = [
     FakeSwarmBot(
       options.swarming, options.dimensions, swarm_bot_version_hash, hostname, i,
       progress, options.consume, events, kill_event)
-    for i in range(options.slaves)
+    for i in range(options.subordinates)
   ]
   try:
-    # Wait for all the slaves to come alive.
-    while not all(s.is_alive() for s in slaves):
+    # Wait for all the subordinates to come alive.
+    while not all(s.is_alive() for s in subordinates):
       time.sleep(0.01)
     progress.update_item('Ready to run')
-    while slaves:
+    while subordinates:
       progress.print_update()
       time.sleep(0.01)
-      # The slaves could be told to die.
-      slaves = [s for s in slaves if s.is_alive()]
+      # The subordinates could be told to die.
+      subordinates = [s for s in subordinates if s.is_alive()]
   except KeyboardInterrupt:
     kill_event.set()
 
-  progress.update_item('Waiting for slaves to quit.', raw=True)
+  progress.update_item('Waiting for subordinates to quit.', raw=True)
   progress.update_item('')
-  while slaves:
+  while subordinates:
     progress.print_update()
-    slaves = [s for s in slaves if s.is_alive()]
+    subordinates = [s for s in subordinates if s.is_alive()]
   # At this point, progress is not used anymore.
   print('')
   print('Ran for %.1fs.' % (time.time() - start))

@@ -139,7 +139,7 @@ class PerfExpectationsUnittest(unittest.TestCase):
     for key in perf_data:
       if key == 'load':
         continue
-      # tools/buildbot/scripts/master/log_parser.py should have a matching
+      # tools/buildbot/scripts/main/log_parser.py should have a matching
       # regular expression.
       if not re.match(r"^([\w\.-]+)/([\w\.-]+)/([\w\.-]+)/([\w\.-]+)$", key):
         bad_keys.append(key)

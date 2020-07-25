@@ -7539,7 +7539,7 @@ class ParallelStatNode(StatNode, ParallelNode):
         """
         As each OpenMP thread may raise an exception, we need to fetch that
         exception from the threadstate and save it for after the parallel
-        section where it can be re-raised in the master thread.
+        section where it can be re-raised in the main thread.
 
         Although it would seem that __pyx_filename, __pyx_lineno and
         __pyx_clineno are only assigned to under exception conditions (i.e.,

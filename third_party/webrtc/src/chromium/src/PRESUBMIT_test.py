@@ -262,7 +262,7 @@ class VersionControlConflictsTest(unittest.TestCase):
              '  base::ScopedTempDir temp_dir_;',
              '=======',
              '  ScopedTempDir temp_dir_;',
-             '>>>>>>> master']
+             '>>>>>>> main']
     errors = PRESUBMIT._CheckForVersionControlConflictsInFile(
         MockInputApi(), MockFile('some/path/foo_platform.cc', lines))
     self.assertEqual(3, len(errors))
@@ -690,8 +690,8 @@ class IDLParsingTest(unittest.TestCase):
                       "'%s' not found in '%s'" % (expected_error, actual_error))
 
 
-class TryServerMasterTest(unittest.TestCase):
-  def testTryServerMasters(self):
+class TryServerMainTest(unittest.TestCase):
+  def testTryServerMains(self):
     bots = {
         'tryserver.chromium.mac': [
             'ios_dbg_simulator',
@@ -778,11 +778,11 @@ class TryServerMasterTest(unittest.TestCase):
             'win_rel_naclmore',
          ],
     }
-    for master, bots in bots.iteritems():
+    for main, bots in bots.iteritems():
       for bot in bots:
-        self.assertEqual(master, PRESUBMIT.GetTryServerMasterForBot(bot),
+        self.assertEqual(main, PRESUBMIT.GetTryServerMainForBot(bot),
                          'bot=%s: expected %s, computed %s' % (
-            bot, master, PRESUBMIT.GetTryServerMasterForBot(bot)))
+            bot, main, PRESUBMIT.GetTryServerMainForBot(bot)))
 
 
 class UserMetricsActionTest(unittest.TestCase):

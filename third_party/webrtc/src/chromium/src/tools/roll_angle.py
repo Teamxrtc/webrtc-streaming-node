@@ -211,8 +211,8 @@ class AutoRoller(object):
     # cross platform compatibility.
 
     if not ignore_checks:
-      if self._GetCurrentBranchName() != 'master':
-        logging.error('Please checkout the master branch.')
+      if self._GetCurrentBranchName() != 'main':
+        logging.error('Please checkout the main branch.')
         return -1
       if not self._IsTreeClean():
         logging.error('Please make sure you don\'t have any modified files.')
@@ -271,8 +271,8 @@ class AutoRoller(object):
       cl_info = self._GetCLInfo()
       print 'Issue: %d URL: %s' % (cl_info.issue, cl_info.url)
 
-    # Checkout master again.
-    self._RunCommand(['git', 'checkout', 'master'])
+    # Checkout main again.
+    self._RunCommand(['git', 'checkout', 'main'])
     print 'Roll branch left as ' + ROLL_BRANCH_NAME
     return 0
 
@@ -288,7 +288,7 @@ class AutoRoller(object):
     os.chdir(cwd)
 
   def _DeleteRollBranch(self):
-    self._RunCommand(['git', 'checkout', 'master'])
+    self._RunCommand(['git', 'checkout', 'main'])
     self._RunCommand(['git', 'branch', '-D', ROLL_BRANCH_NAME])
     logging.debug('Deleted the local roll branch (%s)', ROLL_BRANCH_NAME)
 
@@ -316,7 +316,7 @@ class AutoRoller(object):
   def Abort(self):
     active_branch, branches = self._GetBranches()
     if active_branch == ROLL_BRANCH_NAME:
-      active_branch = 'master'
+      active_branch = 'main'
     if ROLL_BRANCH_NAME in branches:
       print 'Aborting pending roll.'
       self._RunCommand(['git', 'checkout', ROLL_BRANCH_NAME])
@@ -335,7 +335,7 @@ def main():
           'Closes any associated issues and deletes the roll branches'),
     action='store_true')
   parser.add_argument('--ignore-checks', action='store_true', default=False,
-      help=('Skips checks for being on the master branch, dirty workspaces and '
+      help=('Skips checks for being on the main branch, dirty workspaces and '
             'the updating of the checkout. Will still delete and create local '
             'Git branches.'))
   parser.add_argument('-v', '--verbose', action='store_true', default=False,

@@ -134,11 +134,11 @@ def CMDbuilders(parser, args):
 
   The output is a dictionary in the following format:
     {
-      'master_name': [
+      'main_name': [
         'builder_name',
         'another_builder'
       ],
-      'another_master': [
+      'another_main': [
         'third_builder'
       ]
     }
@@ -153,14 +153,14 @@ def CMDbuilders(parser, args):
 
   config = cq_pb2.Config()
   text_format.Merge(cq_config, config)
-  masters = {}
+  mains = {}
   if config.HasField('verifiers') and config.verifiers.HasField('try_job'):
     for bucket in config.verifiers.try_job.buckets:
-      masters.setdefault(bucket.name, [])
+      mains.setdefault(bucket.name, [])
       for builder in bucket.builders:
         if not builder.HasField('experiment_percentage'):
-          masters[bucket.name].append(builder.name)
-  print json.dumps(masters)
+          mains[bucket.name].append(builder.name)
+  print json.dumps(mains)
 
 CMDbuilders.func_usage_more = '<path-to-cq-config>'
 

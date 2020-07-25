@@ -45,7 +45,7 @@ class Session(object):
     """
 
     def __init__(self):
-        self.masterSecret = bytearray(0)
+        self.mainSecret = bytearray(0)
         self.sessionID = bytearray(0)
         self.cipherSuite = 0
         self.srpUsername = ""
@@ -56,10 +56,10 @@ class Session(object):
         self.serverName = ""
         self.resumable = False
 
-    def create(self, masterSecret, sessionID, cipherSuite,
+    def create(self, mainSecret, sessionID, cipherSuite,
             srpUsername, clientCertChain, serverCertChain, 
             tackExt, tackInHelloExt, serverName, resumable=True):
-        self.masterSecret = masterSecret
+        self.mainSecret = mainSecret
         self.sessionID = sessionID
         self.cipherSuite = cipherSuite
         self.srpUsername = srpUsername
@@ -72,7 +72,7 @@ class Session(object):
 
     def _clone(self):
         other = Session()
-        other.masterSecret = self.masterSecret
+        other.mainSecret = self.mainSecret
         other.sessionID = self.sessionID
         other.cipherSuite = self.cipherSuite
         other.srpUsername = self.srpUsername

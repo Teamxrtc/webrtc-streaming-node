@@ -14,11 +14,11 @@ class GitFootersTest(unittest.TestCase):
   _message = """
 This is my commit message. There are many like it, but this one is mine.
 
-My commit message is my best friend. It is my life. I must master it.
+My commit message is my best friend. It is my life. I must main it.
 
 """
 
-  _position = 'refs/heads/master@{#292272}'
+  _position = 'refs/heads/main@{#292272}'
 
   _position_footer = 'Cr-Commit-Position: %s\n' % _position
 
@@ -54,7 +54,7 @@ My commit message is my best friend. It is my life. I must master it.
         { 'Git-Svn-Id': [ self._git_svn_id ] })
     self.assertEqual(
         git_footers.get_position(footers),
-        ('refs/heads/master', '290386'))
+        ('refs/heads/main', '290386'))
 
   def testBranchHeuristic(self):
     footers = git_footers.parse_footers(self._message +

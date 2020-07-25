@@ -491,7 +491,7 @@ def parse_commitrefs(*commitrefs):
 
   A commitref is anything which can resolve to a commit. Popular examples:
     * 'HEAD'
-    * 'origin/master'
+    * 'origin/main'
     * 'cool_branch~2'
   """
   try:
@@ -537,7 +537,7 @@ def remove_merge_base(branch):
 
 
 def root():
-  return config('depot-tools.upstream', 'origin/master')
+  return config('depot-tools.upstream', 'origin/main')
 
 
 def run(*cmd, **kwargs):

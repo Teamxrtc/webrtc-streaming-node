@@ -7,7 +7,7 @@
 
 This script wraps the GN test script in the facade needed for the
 'ScriptTest' step class of the chromium recipe_module
-(see scripts/slave/recipe_modules/chromium/steps.py in the build repo.
+(see scripts/subordinate/recipe_modules/chromium/steps.py in the build repo.
 
 The script takes N arguments, for the N targets to compare flags for.
 """

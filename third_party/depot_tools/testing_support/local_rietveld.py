@@ -97,7 +97,7 @@ class LocalRietveld(object):
                   'w') as sparse_file:
           sparse_file.write('appengine/chromium_rietveld')
         subprocess2.check_call(
-            ['git', 'pull', 'origin', 'master'],
+            ['git', 'pull', 'origin', 'main'],
             cwd=self.rietveld)
       except (OSError, subprocess2.CalledProcessError), e:
         raise Failure('Failed to clone rietveld. \n%s' % e)
@@ -105,7 +105,7 @@ class LocalRietveld(object):
       print('Syncing rietveld...')
       try:
         subprocess2.check_call(
-            ['git', 'pull', 'origin', 'master'],
+            ['git', 'pull', 'origin', 'main'],
             cwd=self.rietveld)
       except (OSError, subprocess2.CalledProcessError), e:
         raise Failure('Failed to sync rietveld\n%s' % e)

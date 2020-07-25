@@ -19,14 +19,14 @@ _EXPORT_RE = re.compile(r"""
 
 
 _USAGE = r"""\
-Usage: %prog [options] [master-file]
+Usage: %prog [options] [main-file]
 
 This script filters a list of exports from a DLL, generated from something
 like the following command line:
 
 C:\> dumpbin /exports user32.dll
 
-against a master list of imports built from e.g.
+against a main list of imports built from e.g.
 
 C:\> dumpbin /exports user32.lib
 
@@ -38,17 +38,17 @@ e.g. they are suffixed with "@" and the number of argument bytes to the
 function.
 """
 
-def _ReadMasterFile(master_file):
-  # Slurp the master file.
-  with open(master_file) as f:
-    master_exports = ast.literal_eval(f.read())
+def _ReadMainFile(main_file):
+  # Slurp the main file.
+  with open(main_file) as f:
+    main_exports = ast.literal_eval(f.read())
 
-  master_mapping = {}
-  for export in master_exports:
+  main_mapping = {}
+  for export in main_exports:
     name = export.split('@')[0]
-    master_mapping[name] = export
+    main_mapping[name] = export
 
-  return master_mapping
+  return main_mapping
 
 
 def main():
@@ -56,25 +56,25 @@ def main():
   parser.add_option('-r', '--reverse',
                     action='store_true',
                     help='Reverse the matching, e.g. return the functions '
-                         'in the master list that aren\'t in the input.')
+                         'in the main list that aren\'t in the input.')
 
   options, args = parser.parse_args()
   if len(args) != 1:
-    parser.error('Must provide a master file.')
+    parser.error('Must provide a main file.')
 
-  master_mapping = _ReadMasterFile(args[0])
+  main_mapping = _ReadMainFile(args[0])
 
   found_exports = []
   for line in sys.stdin:
     match = _EXPORT_RE.match(line)
     if match:
-      export_name = master_mapping.get(match.group('name'), None)
+      export_name = main_mapping.get(match.group('name'), None)
       if export_name:
           found_exports.append(export_name)
 
   if options.reverse:
     # Invert the found_exports list.
-    found_exports = set(master_mapping.values()) - set(found_exports)
+    found_exports = set(main_mapping.values()) - set(found_exports)
 
   # Sort the found exports for tidy output.
   print '\n'.join(sorted(found_exports))

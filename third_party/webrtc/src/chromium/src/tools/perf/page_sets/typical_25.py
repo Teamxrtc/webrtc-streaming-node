@@ -62,7 +62,7 @@ class Typical25PageSet(story.StorySet):
       'http://www.osubeavers.com/',
       'http://walgreens.com',
       'http://colorado.edu',
-      ('http://www.ticketmaster.com/JAY-Z-and-Justin-Timberlake-tickets/artist/'
+      ('http://www.ticketmain.com/JAY-Z-and-Justin-Timberlake-tickets/artist/'
        '1837448?brand=none&tm_link=tm_homeA_rc_name2'),
       # pylint: disable=C0301
       'http://www.theverge.com/2013/3/5/4061684/inside-ted-the-smartest-bubble-in-the-world',

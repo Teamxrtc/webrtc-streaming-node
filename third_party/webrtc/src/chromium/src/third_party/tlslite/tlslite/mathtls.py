@@ -67,23 +67,23 @@ def PRF_SSL(secret, seed, length):
             index += 1
     return bytes
 
-def calcMasterSecret(version, premasterSecret, clientRandom, serverRandom,
-                     handshakeHash, useExtendedMasterSecret):
-    label = b"master secret"
+def calcMainSecret(version, premainSecret, clientRandom, serverRandom,
+                     handshakeHash, useExtendedMainSecret):
+    label = b"main secret"
     seed = clientRandom + serverRandom
-    if useExtendedMasterSecret:
-        label = b"extended master secret"
+    if useExtendedMainSecret:
+        label = b"extended main secret"
         seed = handshakeHash
 
     if version == (3,0):
-        masterSecret = PRF_SSL(premasterSecret, seed, 48)
+        mainSecret = PRF_SSL(premainSecret, seed, 48)
     elif version in ((3,1), (3,2)):
-        masterSecret = PRF(premasterSecret, label, seed, 48)
+        mainSecret = PRF(premainSecret, label, seed, 48)
     elif version == (3,3):
-        masterSecret = PRF_1_2(premasterSecret, label, seed, 48)
+        mainSecret = PRF_1_2(premainSecret, label, seed, 48)
     else:
         raise AssertionError()
-    return masterSecret
+    return mainSecret
 
 
 def makeX(salt, username, password):

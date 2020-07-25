@@ -145,8 +145,8 @@ mark :2
 data 4
 Bye
 
-reset refs/heads/master
-commit refs/heads/master
+reset refs/heads/main
+commit refs/heads/main
 mark :3
 author Bob <bob@example.com> 1253744361 -0700
 committer Bob <bob@example.com> 1253744361 -0700
@@ -191,7 +191,7 @@ Add C
 from :3
 M 100644 :7 c
 
-reset refs/heads/master
+reset refs/heads/main
 from :3
 """
   def Options(self, *args, **kwargs):
@@ -218,9 +218,9 @@ from :3
         cwd=path).communicate()
     Popen(['git', 'remote', 'add', '-f', 'origin', '.'], stdout=PIPE,
         stderr=STDOUT, cwd=path).communicate()
-    Popen(['git', 'checkout', '-b', 'new', 'origin/master', '-q'], stdout=PIPE,
+    Popen(['git', 'checkout', '-b', 'new', 'origin/main', '-q'], stdout=PIPE,
         stderr=STDOUT, cwd=path).communicate()
-    Popen(['git', 'push', 'origin', 'origin/origin:origin/master', '-q'],
+    Popen(['git', 'push', 'origin', 'origin/origin:origin/main', '-q'],
         stdout=PIPE, stderr=STDOUT, cwd=path).communicate()
     Popen(['git', 'config', '--unset', 'remote.origin.fetch'], stdout=PIPE,
         stderr=STDOUT, cwd=path).communicate()
@@ -412,7 +412,7 @@ class ManagedGitWrapperTestCase(BaseGitWrapperTestCase):
                       'd2e35c10ac24d6c621e14a1fcadceb533155627d')
     self.assertEquals(scm._Capture(['rev-parse', 'HEAD^1']), rev)
     self.assertEquals(scm._Capture(['rev-parse', 'HEAD^2']),
-                      scm._Capture(['rev-parse', 'origin/master']))
+                      scm._Capture(['rev-parse', 'origin/main']))
     sys.stdout.close()
 
   def testUpdateRebase(self):
@@ -435,7 +435,7 @@ class ManagedGitWrapperTestCase(BaseGitWrapperTestCase):
     self.assertEquals(scm._Capture(['rev-parse', 'HEAD:']),
                       'd2e35c10ac24d6c621e14a1fcadceb533155627d')
     self.assertEquals(scm._Capture(['rev-parse', 'HEAD^']),
-                      scm._Capture(['rev-parse', 'origin/master']))
+                      scm._Capture(['rev-parse', 'origin/main']))
     sys.stdout.close()
 
   def testUpdateReset(self):
@@ -517,7 +517,7 @@ class ManagedGitWrapperTestCase(BaseGitWrapperTestCase):
                  'Fix the conflict and run gclient again.\n'
                  'See \'man git-rebase\' for details.\n')
     self.assertRaisesError(exception, scm.update, options, (), [])
-    exception = ('\n____ . at refs/remotes/origin/master\n'
+    exception = ('\n____ . at refs/remotes/origin/main\n'
                  '\tYou have unstaged changes.\n'
                  '\tPlease commit, stash, or reset.\n')
     self.assertRaisesError(exception, scm.update, options, (), [])
@@ -680,7 +680,7 @@ class ManagedGitWrapperTestCaseMox(BaseTestCase):
                                ).AndReturn(False)
     self.mox.StubOutWithMock(gclient_scm.GitWrapper, '_Clone', True)
     # pylint: disable=E1120
-    gclient_scm.GitWrapper._Clone('refs/remotes/origin/master', self.url,
+    gclient_scm.GitWrapper._Clone('refs/remotes/origin/main', self.url,
                                   options)
     self.mox.StubOutWithMock(gclient_scm.subprocess2, 'check_output', True)
     gclient_scm.subprocess2.check_output(
@@ -712,12 +712,12 @@ class ManagedGitWrapperTestCaseMox(BaseTestCase):
     self.mox.StubOutWithMock(gclient_scm.GitWrapper, '_Clone', True)
     # pylint: disable=E1120
     gclient_scm.GitWrapper._Clone(
-        'refs/remotes/origin/master', self.url, options
+        'refs/remotes/origin/main', self.url, options
     ).AndRaise(gclient_scm.subprocess2.CalledProcessError(None, None, None,
                                                           None, None))
     self.mox.StubOutWithMock(gclient_scm.GitWrapper, '_DeleteOrMove', True)
     gclient_scm.GitWrapper._DeleteOrMove(False)
-    gclient_scm.GitWrapper._Clone('refs/remotes/origin/master', self.url,
+    gclient_scm.GitWrapper._Clone('refs/remotes/origin/main', self.url,
                                   options)
     self.mox.StubOutWithMock(gclient_scm.subprocess2, 'check_output', True)
     gclient_scm.subprocess2.check_output(
@@ -784,7 +784,7 @@ class UnmanagedGitWrapperTestCase(BaseGitWrapperTestCase):
     # indicates detached HEAD
     self.assertEquals(self.getCurrentBranch(), None)
     self.checkInStdout(
-      'Checked out refs/remotes/origin/master to a detached HEAD')
+      'Checked out refs/remotes/origin/main to a detached HEAD')
 
     rmtree(origin_root_dir)
 

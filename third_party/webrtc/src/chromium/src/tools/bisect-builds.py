@@ -70,7 +70,7 @@ GITHASH_TO_SVN_URL = {
 CHROMIUM_SEARCH_PATTERN_OLD = (
     r'.*git-svn-id: svn://svn.chromium.org/chrome/trunk/src@(\d+) ')
 CHROMIUM_SEARCH_PATTERN = (
-    r'Cr-Commit-Position: refs/heads/master@{#(\d+)}')
+    r'Cr-Commit-Position: refs/heads/main@{#(\d+)}')
 
 # Search pattern to be matched in the json output from
 # BLINK_GITHASH_TO_SVN_URL to get the blink revision (svn revision).
@@ -603,9 +603,9 @@ def FetchRevision(context, rev, filename, quit_event=None, progress_event=None):
   @param context A PathContext instance.
   @param rev The Chromium revision number/tag to download.
   @param filename The destination for the downloaded file.
-  @param quit_event A threading.Event which will be set by the master thread to
+  @param quit_event A threading.Event which will be set by the main thread to
                     indicate that the download should be aborted.
-  @param progress_event A threading.Event which will be set by the master thread
+  @param progress_event A threading.Event which will be set by the main thread
                     to indicate that the progress of the download should be
                     displayed.
   """

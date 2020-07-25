@@ -11,7 +11,7 @@ import urllib
 
 IS_WIN = sys.platform.startswith('win')
 BASE_URL = 'http://src.chromium.org/svn/trunk/tools/buildbot/scripts/'
-COMPILE_URL = BASE_URL + 'slave/compile.py'
+COMPILE_URL = BASE_URL + 'subordinate/compile.py'
 UTILS_URL = BASE_URL + 'common/chromium_utils.py'
 
 

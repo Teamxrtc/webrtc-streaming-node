@@ -105,7 +105,7 @@ def ResolveToRevision(revision_to_check, depot, depot_deps_dict,
     svn_pattern = 'git-svn-id: %s@%d' % (depot_svn, i)
     commit_position_pattern = '^Cr-Commit-Position: .*@{#%d}' % i
     cmd = ['log', '--format=%H', '-1', '--grep', svn_pattern,
-           '--grep', commit_position_pattern, 'origin/master']
+           '--grep', commit_position_pattern, 'origin/main']
     log_output = bisect_utils.CheckRunGit(cmd, cwd=cwd)
     log_output = log_output.strip()
 
@@ -117,11 +117,11 @@ def ResolveToRevision(revision_to_check, depot, depot_deps_dict,
 
 
 def IsInProperBranch():
-  """Checks whether the current branch is "master"."""
+  """Checks whether the current branch is "main"."""
   cmd = ['rev-parse', '--abbrev-ref', 'HEAD']
   log_output = bisect_utils.CheckRunGit(cmd)
   log_output = log_output.strip()
-  return log_output == 'master'
+  return log_output == 'main'
 
 
 def GetCommitPosition(git_revision, cwd=None):

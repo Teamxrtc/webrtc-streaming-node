@@ -800,7 +800,7 @@ def abort_task(_swarming, _manifest):
 
 
 def add_filter_options(parser):
-  parser.filter_group = optparse.OptionGroup(parser, 'Filtering slaves')
+  parser.filter_group = optparse.OptionGroup(parser, 'Filtering subordinates')
   parser.filter_group.add_option(
       '-d', '--dimension', default=[], action='append', nargs=2,
       dest='dimensions', metavar='FOO bar',

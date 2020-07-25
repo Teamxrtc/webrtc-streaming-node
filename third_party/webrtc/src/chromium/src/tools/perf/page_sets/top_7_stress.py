@@ -205,7 +205,7 @@ class BlogspotPage(Top7StressPage):
 
   def __init__(self, page_set):
     super(BlogspotPage, self).__init__(
-      url='http://googlewebmastercentral.blogspot.com/',
+      url='http://googlewebmaincentral.blogspot.com/',
       page_set=page_set,
       name='Blogger')
 

@@ -464,10 +464,10 @@ def CreateBisectDirectoryAndSetupDepot(opts, custom_deps):
                                BISECT_DIR, 'src')
     output, _ = RunGit(['rev-parse', '--is-inside-work-tree'], cwd=path_to_dir)
     if output.strip() == 'true':
-      # Before checking out master, cleanup up any leftover index.lock files.
+      # Before checking out main, cleanup up any leftover index.lock files.
       _CleanupPreviousGitRuns(path_to_dir)
-      # Checks out the master branch, throws an exception if git command fails.
-      CheckRunGit(['checkout', '-f', 'master'], cwd=path_to_dir)
+      # Checks out the main branch, throws an exception if git command fails.
+      CheckRunGit(['checkout', '-f', 'main'], cwd=path_to_dir)
   if not _CreateAndChangeToSourceDirectory(opts.working_directory):
     raise RuntimeError('Could not create bisect directory.')
 

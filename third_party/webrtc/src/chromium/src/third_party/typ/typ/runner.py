@@ -612,7 +612,7 @@ class Runner(object):
 
         url, content_type, data = json_results.make_upload_request(
             self.args.test_results_server, self.args.builder_name,
-            self.args.master_name, self.args.test_type,
+            self.args.main_name, self.args.test_type,
             full_results)
 
         try:

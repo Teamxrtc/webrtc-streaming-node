@@ -159,7 +159,7 @@ class JSONResultsGeneratorBase(object):
 
   # line too long pylint: disable=line-too-long
   URL_FOR_TEST_LIST_JSON = (
-      'http://%s/testfile?builder=%s&name=%s&testlistjson=1&testtype=%s&master=%s')
+      'http://%s/testfile?builder=%s&name=%s&testlistjson=1&testtype=%s&main=%s')
   # pylint: enable=line-too-long
 
   def __init__(self, builder_name, build_name, build_number,
@@ -167,7 +167,7 @@ class JSONResultsGeneratorBase(object):
                test_results_map, svn_repositories=None,
                test_results_server=None,
                test_type='',
-               master_name=''):
+               main_name=''):
     """Modifies the results.json file. Grabs it off the archive directory
     if it is not found locally.
 
@@ -185,7 +185,7 @@ class JSONResultsGeneratorBase(object):
           included in the JSON with the given json_field_name.
       test_results_server: server that hosts test results json.
       test_type: test type string (e.g. 'layout-tests').
-      master_name: the name of the buildbot master.
+      main_name: the name of the buildbot main.
     """
     self._builder_name = builder_name
     self._build_name = build_name
@@ -202,7 +202,7 @@ class JSONResultsGeneratorBase(object):
 
     self._test_results_server = test_results_server
     self._test_type = test_type
-    self._master_name = master_name
+    self._main_name = main_name
 
     self._archived_results = None
 
@@ -272,16 +272,16 @@ class JSONResultsGeneratorBase(object):
     if not self._test_results_server:
       return
 
-    if not self._master_name:
+    if not self._main_name:
       _log.error(
-          '--test-results-server was set, but --master-name was not.  Not '
+          '--test-results-server was set, but --main-name was not.  Not '
           'uploading JSON files.')
       return
 
     _log.info('Uploading JSON files for builder: %s', self._builder_name)
     attrs = [('builder', self._builder_name),
              ('testtype', self._test_type),
-             ('master', self._master_name)]
+             ('main', self._main_name)]
 
     files = [(json_file, os.path.join(self._results_directory, json_file))
              for json_file in json_files]
@@ -377,7 +377,7 @@ class JSONResultsGeneratorBase(object):
                          urllib2.quote(self._builder_name),
                          self.RESULTS_FILENAME,
                          urllib2.quote(self._test_type),
-                         urllib2.quote(self._master_name)))
+                         urllib2.quote(self._main_name)))
 
     try:
       # FIXME: We should talk to the network via a Host object.

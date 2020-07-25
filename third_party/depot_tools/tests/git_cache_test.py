@@ -30,12 +30,12 @@ class GitCacheTest(unittest.TestCase):
   def testParseFetchSpec(self):
     testData = [
         ([], []),
-        (['master'], [('+refs/heads/master:refs/heads/master',
-                       r'\+refs/heads/master:.*')]),
-        (['master/'], [('+refs/heads/master:refs/heads/master',
-                       r'\+refs/heads/master:.*')]),
-        (['+master'], [('+refs/heads/master:refs/heads/master',
-                       r'\+refs/heads/master:.*')]),
+        (['main'], [('+refs/heads/main:refs/heads/main',
+                       r'\+refs/heads/main:.*')]),
+        (['main/'], [('+refs/heads/main:refs/heads/main',
+                       r'\+refs/heads/main:.*')]),
+        (['+main'], [('+refs/heads/main:refs/heads/main',
+                       r'\+refs/heads/main:.*')]),
         (['refs/heads/*'], [('+refs/heads/*:refs/heads/*',
                             r'\+refs/heads/\*:.*')]),
         (['foo/bar/*', 'baz'], [('+refs/heads/foo/bar/*:refs/heads/foo/bar/*',

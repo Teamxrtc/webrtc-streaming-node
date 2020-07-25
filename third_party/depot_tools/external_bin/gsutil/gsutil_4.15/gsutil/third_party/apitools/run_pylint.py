@@ -103,9 +103,9 @@ def get_files_for_linting(allow_limited=True):
     uses a specific commit or branch (a so-called diff base) to compare
     against for changed files. (This requires ``allow_limited=True``.)
 
-    To speed up linting on Travis pull requests against master, we manually
-    set the diff base to origin/master. We don't do this on non-pull requests
-    since origin/master will be equivalent to the currently checked out code.
+    To speed up linting on Travis pull requests against main, we manually
+    set the diff base to origin/main. We don't do this on non-pull requests
+    since origin/main will be equivalent to the currently checked out code.
     One could potentially use ${TRAVIS_COMMIT_RANGE} to find a diff base but
     this value is not dependable.
 
@@ -122,11 +122,11 @@ def get_files_for_linting(allow_limited=True):
               linted.
     """
     diff_base = None
-    if (os.getenv('TRAVIS_BRANCH') == 'master' and
+    if (os.getenv('TRAVIS_BRANCH') == 'main' and
             os.getenv('TRAVIS_PULL_REQUEST') != 'false'):
-        # In the case of a pull request into master, we want to
-        # diff against HEAD in master.
-        diff_base = 'origin/master'
+        # In the case of a pull request into main, we want to
+        # diff against HEAD in main.
+        diff_base = 'origin/main'
     elif os.getenv('TRAVIS') is None:
         # Only allow specified remote and branch in local dev.
         remote = os.getenv('GCLOUD_REMOTE_FOR_LINT')

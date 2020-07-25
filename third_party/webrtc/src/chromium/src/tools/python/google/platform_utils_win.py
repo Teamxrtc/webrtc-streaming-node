@@ -182,7 +182,7 @@ def GetCygwinPath(path):
 
   The cygpath utility insists on converting paths that it thinks are Cygwin
   root paths to what it thinks the correct roots are.  So paths such as
-  "C:\b\slave\webkit-release-kjs\build\third_party\cygwin\bin" are converted to
+  "C:\b\subordinate\webkit-release-kjs\build\third_party\cygwin\bin" are converted to
   plain "/usr/bin".  To avoid this, we do the conversion manually.
 
   The path is expected to be an absolute path, on any drive.

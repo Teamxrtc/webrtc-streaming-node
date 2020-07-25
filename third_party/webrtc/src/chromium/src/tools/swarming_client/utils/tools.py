@@ -294,7 +294,7 @@ def is_headless():
   Examines os.environ for presence of SWARMING_HEADLESS var.
   """
   headless_env_keys = (
-    # This is Chromium specific. Set when running under buildbot slave.
+    # This is Chromium specific. Set when running under buildbot subordinate.
     'CHROME_HEADLESS',
     # Set when running under swarm bot.
     'SWARMING_HEADLESS',

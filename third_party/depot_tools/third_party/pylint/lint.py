@@ -239,7 +239,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
 
     __implements__ = (interfaces.ITokenChecker, )
 
-    name = 'master'
+    name = 'main'
     priority = 0
     level = 0
     msgs = MSGS

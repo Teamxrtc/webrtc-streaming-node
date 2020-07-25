@@ -39,7 +39,7 @@ class GTestJSONParser(object):
   # of output that gums up the infrastructure.
   OUTPUT_SNIPPET_LINES_LIMIT = 5000
 
-  def __init__(self, mastername=None):
+  def __init__(self, mainname=None):
     self.json_file_path = None
     self.delete_json_file = False
 
@@ -52,7 +52,7 @@ class GTestJSONParser(object):
 
     self.parsing_errors = []
 
-    self.master_name = mastername
+    self.main_name = mainname
 
     # List our labels that match the ones output by gtest JSON.
     self.SUPPORTED_LABELS = (TEST_UNKNOWN_LABEL,

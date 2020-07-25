@@ -33,7 +33,7 @@ def main_run(args):
           '--perf-id', perf_id,
           '--perf-dashboard-id', test_suite,
           '--results-url', args.properties.get('results-url'),
-          '--slave-name', args.properties.get('slavename'),
+          '--subordinate-name', args.properties.get('subordinatename'),
           '--builder-name', args.properties.get('buildername'),
           '--build-number', str(args.properties.get('buildnumber')),
           '--log-processor-output-file', tempfile_path,

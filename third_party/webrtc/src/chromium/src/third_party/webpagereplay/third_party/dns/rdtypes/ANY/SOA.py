@@ -22,7 +22,7 @@ import dns.name
 class SOA(dns.rdata.Rdata):
     """SOA record
 
-    @ivar mname: the SOA MNAME (master name) field
+    @ivar mname: the SOA MNAME (main name) field
     @type mname: dns.name.Name object
     @ivar rname: the SOA RNAME (responsible name) field
     @type rname: dns.name.Name object

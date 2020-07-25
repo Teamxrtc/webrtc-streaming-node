@@ -631,7 +631,7 @@ class KeyDesktopSitesPageSet(story.StorySet):
       'http://costco.com',
       'http://bhphotovideo.com',
       'http://hm.com',
-      'http://ticketmaster.com',
+      'http://ticketmain.com',
       'http://jcpenney.com',
       'http://walgreens.com',
       'http://qvc.com',
