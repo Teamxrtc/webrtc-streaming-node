@@ -34,7 +34,7 @@ def get_sandbox_env(env):
 
 def trim_cmd(cmd):
   """Removes internal flags from cmd since they're just used to communicate from
-  the host machine to this script running on the swarm slaves."""
+  the host machine to this script running on the swarm subordinates."""
   sanitizers = ['asan', 'lsan', 'msan', 'tsan']
   internal_flags = frozenset('--%s=%d' % (name, value)
                              for name in sanitizers
@@ -177,7 +177,7 @@ def run_executable(cmd, env):
   env.pop('CR_SOURCE_ROOT', None)
   extra_env.update(get_sandbox_env(env))
 
-  # Copy logic from  tools/build/scripts/slave/runtest.py.
+  # Copy logic from  tools/build/scripts/subordinate/runtest.py.
   asan = '--asan=1' in cmd
   lsan = '--lsan=1' in cmd
   msan = '--msan=1' in cmd

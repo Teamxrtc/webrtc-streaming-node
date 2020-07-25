@@ -62,19 +62,19 @@ class UpdateReferenceBuildUnittest(unittest.TestCase):
               'true_branch', 'v8_version\n'],
              ['win', 'stable', '41.0.2272.89', '41.0.2272.76', '03/10/15',
               '03/03/15', '827a380cfdb31aa54c8d56e63ce2c3fd8c3ba4d4', '310958',
-              'a4d5695040a99b9b2cb196eb5b898383a274376e', '188177', 'master',
+              'a4d5695040a99b9b2cb196eb5b898383a274376e', '188177', 'main',
               '4.1.0.21\n'],
              ['mac', 'stable', '41.0.2272.89', '41.0.2272.76', '03/10/15',
               '03/03/15', '827a380cfdb31aa54c8d56e63ce2c3fd8c3ba4d4', '310958',
-              'a4d5695040a99b9b2cb196eb5b898383a274376e', '188177', 'master',
+              'a4d5695040a99b9b2cb196eb5b898383a274376e', '188177', 'main',
               '4.1.0.21\n'],
              ['linux', 'stable', '41.0.2272.89', '41.0.2272.76', '03/10/15',
               '03/03/15', '827a380cfdb31aa54c8d56e63ce2c3fd8c3ba4d4', '310958',
-              'a4d5695040a99b9b2cb196eb5b898383a274376e', '188177', 'master',
+              'a4d5695040a99b9b2cb196eb5b898383a274376e', '188177', 'main',
               '4.1.0.21\n'],
              ['cros', 'stable', '41.0.2272.89', '41.0.2272.76', '03/10/15',
               '03/04/15', '827a380cfdb31aa54c8d56e63ce2c3fd8c3ba4d4', '310958',
-              'a4d5695040a99b9b2cb196eb5b898383a274376e', '188177', 'master',
+              'a4d5695040a99b9b2cb196eb5b898383a274376e', '188177', 'main',
               '4.1.0.21\n'],
              ['android', 'stable', '41.0.2272.94', '40.0.2214.109', '03/18/15',
               '02/04/15', '827a380cfdb31aa54c8d56e63ce2c3fd8c3ba4d4', '310958',
@@ -100,7 +100,7 @@ class UpdateReferenceBuildUnittest(unittest.TestCase):
                ['win', 'stable', '41.0.2272.89', '41.0.2272.76', '03/10/15',
                 '03/03/15', '827a380cfdb31aa54c8d56e63ce2c3fd8c3ba4d4',
                 '310958', 'a4d5695040a99b9b2cb196eb5b898383a274376e', '188177',
-                'master', '4.1.0.21\n']]
+                'main', '4.1.0.21\n']]
       self.assertRaises(ValueError, b._OmahaVersionsMap)
       lines = ['random', 'list', 'of', 'strings']
       self.assertRaises(ValueError, b._OmahaVersionsMap)

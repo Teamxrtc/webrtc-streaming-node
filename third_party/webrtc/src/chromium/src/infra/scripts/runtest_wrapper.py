@@ -41,7 +41,7 @@ def main(argv):
   return subprocess.call([
       sys.executable,
       os.path.join(SRC_DIR, 'infra', 'scripts', 'legacy',
-                   'scripts', 'slave', 'runtest.py')
+                   'scripts', 'subordinate', 'runtest.py')
   ] + args.args, env=env)
 
 

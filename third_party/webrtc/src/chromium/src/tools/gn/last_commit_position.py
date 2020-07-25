@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Writes the most recent "Cr-Commit-Position" value on the master branch
+"""Writes the most recent "Cr-Commit-Position" value on the main branch
 to a C header file.
 
 Usage: last_commit_position.py <dir> <outfile> <headerguard>
@@ -51,7 +51,7 @@ def RunGitCommand(directory, command):
 
 
 def FetchCommitPosition(directory):
-  regex = re.compile(r'\s*Cr-Commit-Position: refs/heads/master@\{#(\d+)\}\s*')
+  regex = re.compile(r'\s*Cr-Commit-Position: refs/heads/main@\{#(\d+)\}\s*')
 
   # Search this far backward in the git log. The commit position should be
   # close to the top. We allow some slop for long commit messages, and maybe

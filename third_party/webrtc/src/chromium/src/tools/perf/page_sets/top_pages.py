@@ -152,7 +152,7 @@ class BlogspotPage(TopPages):
   def __init__(self, page_set,
                shared_page_state_class=shared_page_state.SharedPageState):
     super(BlogspotPage, self).__init__(
-        url='http://googlewebmastercentral.blogspot.com/',
+        url='http://googlewebmaincentral.blogspot.com/',
         page_set=page_set,
         name='Blogger',
         shared_page_state_class=shared_page_state_class)

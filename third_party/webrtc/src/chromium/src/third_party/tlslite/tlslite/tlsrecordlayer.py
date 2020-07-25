@@ -1124,7 +1124,7 @@ class TLSRecordLayer(object):
         self.resumed = resumed
         self.closed = False
 
-    def _calcPendingStates(self, cipherSuite, masterSecret,
+    def _calcPendingStates(self, cipherSuite, mainSecret,
             clientRandom, serverRandom, implementations):
         if cipherSuite in CipherSuite.aes128GcmSuites:
             keyLength = 16
@@ -1173,18 +1173,18 @@ class TLSRecordLayer(object):
 
         outputLength = (macLength*2) + (keyLength*2) + (ivLength*2)
 
-        #Calculate Keying Material from Master Secret
+        #Calculate Keying Material from Main Secret
         if self.version == (3,0):
-            keyBlock = PRF_SSL(masterSecret,
+            keyBlock = PRF_SSL(mainSecret,
                                serverRandom + clientRandom,
                                outputLength)
         elif self.version in ((3,1), (3,2)):
-            keyBlock = PRF(masterSecret,
+            keyBlock = PRF(mainSecret,
                            b"key expansion",
                            serverRandom + clientRandom,
                            outputLength)
         elif self.version == (3,3):
-            keyBlock = PRF_1_2(masterSecret,
+            keyBlock = PRF_1_2(mainSecret,
                            b"key expansion",
                            serverRandom + clientRandom,
                            outputLength)
@@ -1246,16 +1246,16 @@ class TLSRecordLayer(object):
         self._pendingReadState = _ConnectionState()
 
     #Used for Finished messages and CertificateVerify messages in SSL v3
-    def _calcSSLHandshakeHash(self, masterSecret, label):
+    def _calcSSLHandshakeHash(self, mainSecret, label):
         imac_md5 = self._handshake_md5.copy()
         imac_sha = self._handshake_sha.copy()
 
-        imac_md5.update(compatHMAC(label + masterSecret + bytearray([0x36]*48)))
-        imac_sha.update(compatHMAC(label + masterSecret + bytearray([0x36]*40)))
+        imac_md5.update(compatHMAC(label + mainSecret + bytearray([0x36]*48)))
+        imac_sha.update(compatHMAC(label + mainSecret + bytearray([0x36]*40)))
 
-        md5Bytes = MD5(masterSecret + bytearray([0x5c]*48) + \
+        md5Bytes = MD5(mainSecret + bytearray([0x5c]*48) + \
                          bytearray(imac_md5.digest()))
-        shaBytes = SHA1(masterSecret + bytearray([0x5c]*40) + \
+        shaBytes = SHA1(mainSecret + bytearray([0x5c]*40) + \
                          bytearray(imac_sha.digest()))
 
         return md5Bytes + shaBytes

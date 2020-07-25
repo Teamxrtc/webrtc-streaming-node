@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Utilities to facilitate maintaining one master list of package contents 
+# Utilities to facilitate maintaining one main list of package contents 
 # in MANIFEST.in and allow us to import that list into various packaging 
 # tools (e.g. rpmbuid and setup.py).
 

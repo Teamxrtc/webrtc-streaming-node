@@ -129,7 +129,7 @@ class AdmonitionProcessor(BlockProcessor):
 
         if theRest:
             # This block contained unindented line(s) after the first indented
-            # line. Insert these lines as the first block of the master blocks
+            # line. Insert these lines as the first block of the main blocks
             # list for future processing.
             blocks.insert(0, theRest)
 

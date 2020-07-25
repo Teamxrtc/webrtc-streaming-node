@@ -112,9 +112,9 @@ def SvnRevToGitHash(
       refspec = 'refs/remotes/branch-heads/' + svn_branch_name
   else:
     if mirror:
-      refspec = 'refs/heads/master'
+      refspec = 'refs/heads/main'
     else:
-      refspec = 'refs/remotes/origin/master'
+      refspec = 'refs/remotes/origin/main'
 
   # Work-around for:
   #   http://code.google.com/p/chromium/issues/detail?id=362222

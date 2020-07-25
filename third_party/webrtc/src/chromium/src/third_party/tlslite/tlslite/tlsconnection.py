@@ -47,7 +47,7 @@ class KeyExchange(object):
     def processClientKeyExchange(clientKeyExchange):
         """
         Processes the client's ClientKeyExchange message and returns the
-        premaster secret. Raises TLSLocalAlert on error.
+        premain secret. Raises TLSLocalAlert on error.
         """
         raise NotImplementedError()
 
@@ -56,23 +56,23 @@ class RSAKeyExchange(KeyExchange):
         return None
 
     def processClientKeyExchange(self, clientKeyExchange):
-        premasterSecret = self.privateKey.decrypt(\
-            clientKeyExchange.encryptedPreMasterSecret)
+        premainSecret = self.privateKey.decrypt(\
+            clientKeyExchange.encryptedPreMainSecret)
 
-        # On decryption failure randomize premaster secret to avoid
+        # On decryption failure randomize premain secret to avoid
         # Bleichenbacher's "million message" attack
-        randomPreMasterSecret = getRandomBytes(48)
-        if not premasterSecret:
-            premasterSecret = randomPreMasterSecret
-        elif len(premasterSecret)!=48:
-            premasterSecret = randomPreMasterSecret
+        randomPreMainSecret = getRandomBytes(48)
+        if not premainSecret:
+            premainSecret = randomPreMainSecret
+        elif len(premainSecret)!=48:
+            premainSecret = randomPreMainSecret
         else:
-            versionCheck = (premasterSecret[0], premasterSecret[1])
+            versionCheck = (premainSecret[0], premainSecret[1])
             if versionCheck != self.clientHello.client_version:
                 #Tolerate buggy IE clients
                 if versionCheck != self.serverHello.server_version:
-                    premasterSecret = randomPreMasterSecret
-        return premasterSecret
+                    premainSecret = randomPreMainSecret
+        return premainSecret
 
 def _hexStringToNumber(s):
     s = s.replace(" ", "").replace("\n", "")
@@ -558,7 +558,7 @@ class TLSConnection(TLSRecordLayer):
 
         #If the server selected an SRP ciphersuite, the client finishes
         #reading the post-ServerHello messages, then derives a
-        #premasterSecret and sends a corresponding ClientKeyExchange.
+        #premainSecret and sends a corresponding ClientKeyExchange.
         if cipherSuite in CipherSuite.srpAllSuites:
             for result in self._clientSRPKeyExchange(\
                     settings, cipherSuite, serverHello.certificate_type, 
@@ -567,7 +567,7 @@ class TLSConnection(TLSRecordLayer):
                     serverHello.tackExt):                
                 if result in (0,1): yield result
                 else: break                
-            (premasterSecret, serverCertChain, tackExt) = result
+            (premainSecret, serverCertChain, tackExt) = result
 
         #If the server selected an anonymous ciphersuite, the client
         #finishes reading the post-ServerHello messages.
@@ -576,7 +576,7 @@ class TLSConnection(TLSRecordLayer):
                                     clientHello.random, serverHello.random):
                 if result in (0,1): yield result
                 else: break
-            (premasterSecret, serverCertChain, tackExt) = result     
+            (premainSecret, serverCertChain, tackExt) = result     
                
         #If the server selected a certificate-based RSA ciphersuite,
         #the client finishes reading the post-ServerHello messages. If 
@@ -592,23 +592,23 @@ class TLSConnection(TLSRecordLayer):
                                     serverHello.tackExt):
                 if result in (0,1): yield result
                 else: break
-            (premasterSecret, serverCertChain, clientCertChain, 
+            (premainSecret, serverCertChain, clientCertChain, 
              tackExt) = result
                         
         #After having previously sent a ClientKeyExchange, the client now
         #initiates an exchange of Finished messages.
-        for result in self._clientFinished(premasterSecret,
+        for result in self._clientFinished(premainSecret,
                             clientHello.random, 
                             serverHello.random,
                             cipherSuite, settings.cipherImplementations,
                             nextProto):
                 if result in (0,1): yield result
                 else: break
-        masterSecret = result
+        mainSecret = result
         
         # Create the session object which is used for resumptions
         self.session = Session()
-        self.session.create(masterSecret, serverHello.session_id, cipherSuite,
+        self.session.create(mainSecret, serverHello.session_id, cipherSuite,
             srpUsername, clientCertChain, serverCertChain,
             tackExt, serverHello.tackExt!=None, serverName)
         self._handshakeDone(resumed=False)
@@ -754,14 +754,14 @@ class TLSConnection(TLSRecordLayer):
 
             #Calculate pending connection states
             self._calcPendingStates(session.cipherSuite, 
-                                    session.masterSecret, 
+                                    session.mainSecret, 
                                     clientRandom, serverHello.random, 
                                     cipherImplementations)                                   
 
             #Exchange ChangeCipherSpec and Finished messages
-            for result in self._getFinished(session.masterSecret):
+            for result in self._getFinished(session.mainSecret):
                 yield result
-            for result in self._sendFinished(session.masterSecret, nextProto):
+            for result in self._sendFinished(session.mainSecret, nextProto):
                 yield result
 
             #Set the session for this connection
@@ -795,7 +795,7 @@ class TLSConnection(TLSRecordLayer):
             else: break
         serverHelloDone = result
             
-        #Calculate SRP premaster secret
+        #Calculate SRP premain secret
         #Get and check the server's group parameters and B value
         N = serverKeyExchange.srp_N
         g = serverKeyExchange.srp_g
@@ -867,7 +867,7 @@ class TLSConnection(TLSRecordLayer):
         #Calculate u
         u = makeU(N, A, B)
 
-        #Calculate premaster secret
+        #Calculate premain secret
         k = makeK(N, g)
         S = powMod((B - (k*v)) % N, a+(u*x), N)
 
@@ -875,13 +875,13 @@ class TLSConnection(TLSRecordLayer):
             A = N
             S = 0
             
-        premasterSecret = numberToByteArray(S)
+        premainSecret = numberToByteArray(S)
 
         #Send ClientKeyExchange
         for result in self._sendMsg(\
                 ClientKeyExchange(cipherSuite).createSRP(A)):
             yield result
-        yield (premasterSecret, serverCertChain, tackExt)
+        yield (premainSecret, serverCertChain, tackExt)
                    
 
     def _clientRSAKeyExchange(self, settings, cipherSuite, 
@@ -925,18 +925,18 @@ class TLSConnection(TLSRecordLayer):
             else: break
         publicKey, serverCertChain, tackExt = result
 
-        #Calculate premaster secret
-        premasterSecret = getRandomBytes(48)
-        premasterSecret[0] = settings.maxVersion[0]
-        premasterSecret[1] = settings.maxVersion[1]
+        #Calculate premain secret
+        premainSecret = getRandomBytes(48)
+        premainSecret[0] = settings.maxVersion[0]
+        premainSecret[1] = settings.maxVersion[1]
 
-        if self.fault == Fault.badPremasterPadding:
-            premasterSecret[0] = 5
-        if self.fault == Fault.shortPremasterSecret:
-            premasterSecret = premasterSecret[:-1]
+        if self.fault == Fault.badPremainPadding:
+            premainSecret[0] = 5
+        if self.fault == Fault.shortPremainSecret:
+            premainSecret = premainSecret[:-1]
 
-        #Encrypt premaster secret to server's public key
-        encryptedPreMasterSecret = publicKey.encrypt(premasterSecret)
+        #Encrypt premain secret to server's public key
+        encryptedPreMainSecret = publicKey.encrypt(premainSecret)
 
         #If client authentication was requested, send Certificate
         #message, either with certificates or empty
@@ -969,7 +969,7 @@ class TLSConnection(TLSRecordLayer):
         #Send ClientKeyExchange
         clientKeyExchange = ClientKeyExchange(cipherSuite,
                                               self.version)
-        clientKeyExchange.createRSA(encryptedPreMasterSecret)
+        clientKeyExchange.createRSA(encryptedPreMainSecret)
         for result in self._sendMsg(clientKeyExchange):
             yield result
 
@@ -978,12 +978,12 @@ class TLSConnection(TLSRecordLayer):
         if certificateRequest and privateKey:
             signatureAlgorithm = None
             if self.version == (3,0):
-                masterSecret = calcMasterSecret(self.version,
-                                         premasterSecret,
+                mainSecret = calcMainSecret(self.version,
+                                         premainSecret,
                                          clientRandom,
                                          serverRandom,
                                          b"", False)
-                verifyBytes = self._calcSSLHandshakeHash(masterSecret, b"")
+                verifyBytes = self._calcSSLHandshakeHash(mainSecret, b"")
             elif self.version in ((3,1), (3,2)):
                 verifyBytes = self._handshake_md5.digest() + \
                                 self._handshake_sha.digest()
@@ -999,7 +999,7 @@ class TLSConnection(TLSRecordLayer):
             certificateVerify.create(signatureAlgorithm, signedBytes)
             for result in self._sendMsg(certificateVerify):
                 yield result
-        yield (premasterSecret, serverCertChain, clientCertChain, tackExt)
+        yield (premainSecret, serverCertChain, clientCertChain, tackExt)
 
     def _clientAnonKeyExchange(self, settings, cipherSuite, clientRandom, 
                                serverRandom):
@@ -1027,27 +1027,27 @@ class TLSConnection(TLSRecordLayer):
                 ClientKeyExchange(cipherSuite, self.version).createDH(dh_Yc)):
             yield result
             
-        #Calculate premaster secret
+        #Calculate premain secret
         S = powMod(dh_Ys, dh_Xc, dh_p)
-        premasterSecret = numberToByteArray(S)
+        premainSecret = numberToByteArray(S)
                      
-        yield (premasterSecret, None, None)
+        yield (premainSecret, None, None)
         
-    def _clientFinished(self, premasterSecret, clientRandom, serverRandom,
+    def _clientFinished(self, premainSecret, clientRandom, serverRandom,
                         cipherSuite, cipherImplementations, nextProto):
 
-        masterSecret = calcMasterSecret(self.version, premasterSecret,
+        mainSecret = calcMainSecret(self.version, premainSecret,
                             clientRandom, serverRandom, b"", False)
-        self._calcPendingStates(cipherSuite, masterSecret, 
+        self._calcPendingStates(cipherSuite, mainSecret, 
                                 clientRandom, serverRandom, 
                                 cipherImplementations)
 
         #Exchange ChangeCipherSpec and Finished messages
-        for result in self._sendFinished(masterSecret, nextProto):
+        for result in self._sendFinished(mainSecret, nextProto):
             yield result
-        for result in self._getFinished(masterSecret, nextProto=nextProto):
+        for result in self._getFinished(mainSecret, nextProto=nextProto):
             yield result
-        yield masterSecret
+        yield mainSecret
 
     def _clientGetKeyFromChain(self, certificate, settings, tackExt=None):
         #Get and check cert chain from the Certificate message
@@ -1328,9 +1328,9 @@ class TLSConnection(TLSRecordLayer):
                             nextProtos)
         serverHello.channel_id = \
             clientHello.channel_id and settings.enableChannelID
-        serverHello.extended_master_secret = \
-            clientHello.extended_master_secret and \
-            settings.enableExtendedMasterSecret
+        serverHello.extended_main_secret = \
+            clientHello.extended_main_secret and \
+            settings.enableExtendedMainSecret
         for param in clientHello.tb_client_params:
             if param in settings.supportedTokenBindingParams:
                 serverHello.tb_params = param
@@ -1348,7 +1348,7 @@ class TLSConnection(TLSRecordLayer):
                                     privateKey, certChain):
                 if result in (0,1): yield result
                 else: break
-            premasterSecret = result
+            premainSecret = result
 
         # Perform a certificate-based key exchange
         elif cipherSuite in CipherSuite.certAllSuites:
@@ -1375,7 +1375,7 @@ class TLSConnection(TLSRecordLayer):
                                         settings, ocspResponse):
                 if result in (0,1): yield result
                 else: break
-            (premasterSecret, clientCertChain) = result
+            (premainSecret, clientCertChain) = result
 
         # Perform anonymous Diffie Hellman key exchange
         elif cipherSuite in CipherSuite.anonSuites:
@@ -1383,20 +1383,20 @@ class TLSConnection(TLSRecordLayer):
                                         cipherSuite, settings):
                 if result in (0,1): yield result
                 else: break
-            premasterSecret = result
+            premainSecret = result
         
         else:
             assert(False)
                         
         # Exchange Finished messages      
-        for result in self._serverFinished(premasterSecret, 
+        for result in self._serverFinished(premainSecret, 
                                 clientHello.random, serverHello.random,
                                 cipherSuite, settings.cipherImplementations,
                                 nextProtos, serverHello.channel_id,
-                                serverHello.extended_master_secret):
+                                serverHello.extended_main_secret):
                 if result in (0,1): yield result
                 else: break
-        masterSecret = result
+        mainSecret = result
 
         #Create the session object
         self.session = Session()
@@ -1410,7 +1410,7 @@ class TLSConnection(TLSRecordLayer):
             srpUsername = clientHello.srp_username.decode("utf-8")
         if clientHello.server_name:
             serverName = clientHello.server_name.decode("utf-8")
-        self.session.create(masterSecret, serverHello.session_id, cipherSuite,
+        self.session.create(mainSecret, serverHello.session_id, cipherSuite,
             srpUsername, clientCertChain, serverCertChain,
             tackExt, serverHello.tackExt!=None, serverName)
             
@@ -1533,9 +1533,9 @@ class TLSConnection(TLSRecordLayer):
                 serverHello.create(self.version, getRandomBytes(32),
                                    session.sessionID, session.cipherSuite,
                                    CertificateType.x509, None, None)
-                serverHello.extended_master_secret = \
-                    clientHello.extended_master_secret and \
-                    settings.enableExtendedMasterSecret
+                serverHello.extended_main_secret = \
+                    clientHello.extended_main_secret and \
+                    settings.enableExtendedMainSecret
                 for result in self._sendMsg(serverHello):
                     yield result
 
@@ -1544,15 +1544,15 @@ class TLSConnection(TLSRecordLayer):
 
                 #Calculate pending connection states
                 self._calcPendingStates(session.cipherSuite, 
-                                        session.masterSecret,
+                                        session.mainSecret,
                                         clientHello.random, 
                                         serverHello.random,
                                         settings.cipherImplementations)
 
                 #Exchange ChangeCipherSpec and Finished messages
-                for result in self._sendFinished(session.masterSecret):
+                for result in self._sendFinished(session.mainSecret):
                     yield result
-                for result in self._getFinished(session.masterSecret):
+                for result in self._getFinished(session.mainSecret):
                     yield result
 
                 #Set the session
@@ -1656,11 +1656,11 @@ class TLSConnection(TLSRecordLayer):
         #Calculate u
         u = makeU(N, A, B)
 
-        #Calculate premaster secret
+        #Calculate premain secret
         S = powMod((A * powMod(v,u,N)) % N, b, N)
-        premasterSecret = numberToByteArray(S)
+        premainSecret = numberToByteArray(S)
         
-        yield premasterSecret
+        yield premainSecret
 
 
     def _serverCertKeyExchange(self, clientHello, serverHello, 
@@ -1746,7 +1746,7 @@ class TLSConnection(TLSRecordLayer):
 
         #Process ClientKeyExchange
         try:
-            premasterSecret = \
+            premainSecret = \
                 keyExchange.processClientKeyExchange(clientKeyExchange)
         except TLSLocalAlert, alert:
             for result in self._sendError(alert.description, alert.message):
@@ -1755,10 +1755,10 @@ class TLSConnection(TLSRecordLayer):
         #Get and check CertificateVerify, if relevant
         if clientCertChain:
             if self.version == (3,0):
-                masterSecret = calcMasterSecret(self.version, premasterSecret,
+                mainSecret = calcMainSecret(self.version, premainSecret,
                                          clientHello.random, serverHello.random,
                                          b"", False)
-                verifyBytes = self._calcSSLHandshakeHash(masterSecret, b"")
+                verifyBytes = self._calcSSLHandshakeHash(mainSecret, b"")
             elif self.version in ((3,1), (3,2)):
                 verifyBytes = self._handshake_md5.digest() + \
                                 self._handshake_sha.digest()
@@ -1788,7 +1788,7 @@ class TLSConnection(TLSRecordLayer):
                         AlertDescription.decrypt_error,
                         "Signature failed to verify"):
                     yield result
-        yield (premasterSecret, clientCertChain)
+        yield (premainSecret, clientCertChain)
 
 
     def _serverAnonKeyExchange(self, clientHello, serverHello, cipherSuite, 
@@ -1832,36 +1832,36 @@ class TLSConnection(TLSRecordLayer):
                 yield result
             assert(False) # Just to ensure we don't fall through somehow            
 
-        #Calculate premaster secre
+        #Calculate premain secre
         S = powMod(dh_Yc,dh_Xs,dh_p)
-        premasterSecret = numberToByteArray(S)
+        premainSecret = numberToByteArray(S)
         
-        yield premasterSecret
+        yield premainSecret
 
 
-    def _serverFinished(self,  premasterSecret, clientRandom, serverRandom,
+    def _serverFinished(self,  premainSecret, clientRandom, serverRandom,
                         cipherSuite, cipherImplementations, nextProtos,
-                        doingChannelID, useExtendedMasterSecret):
-        masterSecret = calcMasterSecret(self.version, premasterSecret,
+                        doingChannelID, useExtendedMainSecret):
+        mainSecret = calcMainSecret(self.version, premainSecret,
                                       clientRandom, serverRandom,
                                       self._ems_handshake_hash,
-                                      useExtendedMasterSecret)
+                                      useExtendedMainSecret)
         
         #Calculate pending connection states
-        self._calcPendingStates(cipherSuite, masterSecret, 
+        self._calcPendingStates(cipherSuite, mainSecret, 
                                 clientRandom, serverRandom,
                                 cipherImplementations)
 
         #Exchange ChangeCipherSpec and Finished messages
-        for result in self._getFinished(masterSecret, 
+        for result in self._getFinished(mainSecret, 
                         expect_next_protocol=nextProtos is not None,
                         expect_channel_id=doingChannelID):
             yield result
 
-        for result in self._sendFinished(masterSecret):
+        for result in self._sendFinished(mainSecret):
             yield result
         
-        yield masterSecret        
+        yield mainSecret        
 
 
     #*********************************************************
@@ -1869,7 +1869,7 @@ class TLSConnection(TLSRecordLayer):
     #*********************************************************
 
 
-    def _sendFinished(self, masterSecret, nextProto=None):
+    def _sendFinished(self, mainSecret, nextProto=None):
         #Send ChangeCipherSpec
         for result in self._sendMsg(ChangeCipherSpec()):
             yield result
@@ -1883,7 +1883,7 @@ class TLSConnection(TLSRecordLayer):
                 yield result
 
         #Calculate verification data
-        verifyData = self._calcFinished(masterSecret, True)
+        verifyData = self._calcFinished(mainSecret, True)
         if self.fault == Fault.badFinished:
             verifyData[0] = (verifyData[0]+1)%256
 
@@ -1892,7 +1892,7 @@ class TLSConnection(TLSRecordLayer):
         for result in self._sendMsg(finished):
             yield result
 
-    def _getFinished(self, masterSecret, expect_next_protocol=False, nextProto=None,
+    def _getFinished(self, mainSecret, expect_next_protocol=False, nextProto=None,
                      expect_channel_id=False):
         #Get and check ChangeCipherSpec
         for result in self._getMsg(ContentType.change_cipher_spec):
@@ -1941,7 +1941,7 @@ class TLSConnection(TLSRecordLayer):
             self.channel_id = None
 
         #Calculate verification data
-        verifyData = self._calcFinished(masterSecret, False)
+        verifyData = self._calcFinished(mainSecret, False)
 
         #Get and check Finished message under new state
         for result in self._getMsg(ContentType.handshake,
@@ -1954,14 +1954,14 @@ class TLSConnection(TLSRecordLayer):
                                          "Finished message is incorrect"):
                 yield result
 
-    def _calcFinished(self, masterSecret, send=True):
+    def _calcFinished(self, mainSecret, send=True):
         if self.version == (3,0):
             if (self._client and send) or (not self._client and not send):
                 senderStr = b"\x43\x4C\x4E\x54"
             else:
                 senderStr = b"\x53\x52\x56\x52"
 
-            verifyData = self._calcSSLHandshakeHash(masterSecret, senderStr)
+            verifyData = self._calcSSLHandshakeHash(mainSecret, senderStr)
             return verifyData
 
         elif self.version in ((3,1), (3,2)):
@@ -1972,7 +1972,7 @@ class TLSConnection(TLSRecordLayer):
 
             handshakeHashes = self._handshake_md5.digest() + \
                                 self._handshake_sha.digest()
-            verifyData = PRF(masterSecret, label, handshakeHashes, 12)
+            verifyData = PRF(mainSecret, label, handshakeHashes, 12)
             return verifyData
         elif self.version == (3,3):
             if (self._client and send) or (not self._client and not send):
@@ -1981,7 +1981,7 @@ class TLSConnection(TLSRecordLayer):
                 label = b"server finished"
 
             handshakeHashes = self._handshake_sha256.digest()
-            verifyData = PRF_1_2(masterSecret, label, handshakeHashes, 12)
+            verifyData = PRF_1_2(mainSecret, label, handshakeHashes, 12)
             return verifyData
         else:
             raise AssertionError()

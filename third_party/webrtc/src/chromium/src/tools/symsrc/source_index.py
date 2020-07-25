@@ -303,7 +303,7 @@ def ExtractGitInfo(local_filename):
   if not file_info:
     return
 
-  # Get the revision of the master branch.
+  # Get the revision of the main branch.
   rev = RunCommand('git.bat', 'rev-parse', 'HEAD', cwd=local_file_dir)
 
   # Get the url of the remote repository.

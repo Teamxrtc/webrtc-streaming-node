@@ -62,7 +62,7 @@ import SCons.Node
 import SCons.Node.FS
 import SCons.SConf
 import SCons.Script
-import SCons.Taskmaster
+import SCons.Taskmain
 import SCons.Util
 import SCons.Warnings
 
@@ -155,7 +155,7 @@ _BuildFailures = []
 def GetBuildFailures():
     return _BuildFailures
 
-class BuildTask(SCons.Taskmaster.OutOfDateTask):
+class BuildTask(SCons.Taskmain.OutOfDateTask):
     """An SCons build task."""
     progress = ProgressObject
 
@@ -164,10 +164,10 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
 
     def prepare(self):
         self.progress(self.targets[0])
-        return SCons.Taskmaster.OutOfDateTask.prepare(self)
+        return SCons.Taskmain.OutOfDateTask.prepare(self)
 
     def needs_execute(self):
-        if SCons.Taskmaster.OutOfDateTask.needs_execute(self):
+        if SCons.Taskmain.OutOfDateTask.needs_execute(self):
             return True
         if self.top and self.targets[0].has_builder():
             display("scons: `%s' is up to date." % str(self.node))
@@ -179,7 +179,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
             global first_command_start
             if first_command_start is None:
                 first_command_start = start_time
-        SCons.Taskmaster.OutOfDateTask.execute(self)
+        SCons.Taskmain.OutOfDateTask.execute(self)
         if print_time:
             global cumulative_command_time
             global last_command_end
@@ -193,13 +193,13 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
         global exit_status
         global this_build_status
         if self.options.ignore_errors:
-            SCons.Taskmaster.OutOfDateTask.executed(self)
+            SCons.Taskmain.OutOfDateTask.executed(self)
         elif self.options.keep_going:
-            SCons.Taskmaster.OutOfDateTask.fail_continue(self)
+            SCons.Taskmain.OutOfDateTask.fail_continue(self)
             exit_status = status
             this_build_status = status
         else:
-            SCons.Taskmaster.OutOfDateTask.fail_stop(self)
+            SCons.Taskmain.OutOfDateTask.fail_stop(self)
             exit_status = status
             this_build_status = status
             
@@ -224,9 +224,9 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
                 self.do_failed()
             else:
                 print "scons: Nothing to be done for `%s'." % t
-                SCons.Taskmaster.OutOfDateTask.executed(self)
+                SCons.Taskmain.OutOfDateTask.executed(self)
         else:
-            SCons.Taskmaster.OutOfDateTask.executed(self)
+            SCons.Taskmain.OutOfDateTask.executed(self)
 
     def failed(self):
         # Handle the failure of a build task.  The primary purpose here
@@ -240,7 +240,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
             tb = None
 
         if t is None:
-            # The Taskmaster didn't record an exception for this Task;
+            # The Taskmain didn't record an exception for this Task;
             # see if the sys module has one.
             try:
                 t, e, tb = sys.exc_info()[:]
@@ -291,17 +291,17 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
                 if tree:
                     print
                     print tree
-        SCons.Taskmaster.OutOfDateTask.postprocess(self)
+        SCons.Taskmain.OutOfDateTask.postprocess(self)
 
     def make_ready(self):
         """Make a task ready for execution"""
-        SCons.Taskmaster.OutOfDateTask.make_ready(self)
+        SCons.Taskmain.OutOfDateTask.make_ready(self)
         if self.out_of_date and self.options.debug_explain:
             explanation = self.out_of_date[0].explain()
             if explanation:
                 sys.stdout.write("scons: " + explanation)
 
-class CleanTask(SCons.Taskmaster.AlwaysTask):
+class CleanTask(SCons.Taskmain.AlwaysTask):
     """An SCons clean task."""
     def fs_delete(self, path, pathstr, remove=1):
         try:
@@ -364,21 +364,21 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
 
     execute = remove
 
-    # We want the Taskmaster to update the Node states (and therefore
+    # We want the Taskmain to update the Node states (and therefore
     # handle reference counts, etc.), but we don't want to call
     # back to the Node's post-build methods, which would do things
     # we don't want, like store .sconsign information.
-    executed = SCons.Taskmaster.Task.executed_without_callbacks
+    executed = SCons.Taskmain.Task.executed_without_callbacks
 
-    # Have the taskmaster arrange to "execute" all of the targets, because
+    # Have the taskmain arrange to "execute" all of the targets, because
     # we'll figure out ourselves (in remove() or show() above) whether
     # anything really needs to be done.
-    make_ready = SCons.Taskmaster.Task.make_ready_all
+    make_ready = SCons.Taskmain.Task.make_ready_all
 
     def prepare(self):
         pass
 
-class QuestionTask(SCons.Taskmaster.AlwaysTask):
+class QuestionTask(SCons.Taskmain.AlwaysTask):
     """An SCons task for the -q (question) option."""
     def prepare(self):
         pass
@@ -1139,13 +1139,13 @@ def _build_targets(fs, options, targets, target_top):
             """Leave the order of dependencies alone."""
             return dependencies
 
-    if options.taskmastertrace_file == '-':
+    if options.taskmaintrace_file == '-':
         tmtrace = sys.stdout
-    elif options.taskmastertrace_file:
-        tmtrace = open(options.taskmastertrace_file, 'wb')
+    elif options.taskmaintrace_file:
+        tmtrace = open(options.taskmaintrace_file, 'wb')
     else:
         tmtrace = None
-    taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, order, tmtrace)
+    taskmain = SCons.Taskmain.Taskmain(nodes, task_class, order, tmtrace)
 
     # Let the BuildTask objects get at the options to respond to the
     # various print_* settings, tree_printer list, etc.
@@ -1153,7 +1153,7 @@ def _build_targets(fs, options, targets, target_top):
 
     global num_jobs
     num_jobs = options.num_jobs
-    jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+    jobs = SCons.Job.Jobs(num_jobs, taskmain)
     if num_jobs > 1:
         msg = None
         if jobs.num_jobs == 1:
@@ -1308,7 +1308,7 @@ def main():
     # there's no need to control them with --debug= options; they're
     # controlled by changing the source code.
     SCons.Debug.dump_caller_counts()
-    SCons.Taskmaster.dump_stats()
+    SCons.Taskmain.dump_stats()
 
     if print_time:
         total_time = time.time() - SCons.Script.start_time

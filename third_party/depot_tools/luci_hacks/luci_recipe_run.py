@@ -66,14 +66,14 @@ def main(args):
   root_dir = os.path.join(cwd, 'b')
   os.makedirs(root_dir)
   get_infra(dt_path, root_dir)
-  work_dir = os.path.join(root_dir, 'build', 'slave', 'bot', 'build')
+  work_dir = os.path.join(root_dir, 'build', 'subordinate', 'bot', 'build')
   os.makedirs(work_dir)
 
   # Emit annotations that encapsulates build properties.
   seed_properties(args)
 
   # JUST DO IT.
-  cmd = [sys.executable, '-u', '../../../scripts/slave/annotated_run.py']
+  cmd = [sys.executable, '-u', '../../../scripts/subordinate/annotated_run.py']
   cmd.extend(args)
   subprocess.check_call(cmd, cwd=work_dir)
 

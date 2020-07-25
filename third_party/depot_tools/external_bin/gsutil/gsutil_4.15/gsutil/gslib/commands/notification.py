@@ -126,7 +126,7 @@ which is not authorized for your project. Please ensure that you are using
 Service Account authentication and that the Service Account's project is
 authorized for the application URL. Notification endpoint URLs must also be
 whitelisted in your Cloud Console project. To do that, the domain must also be
-verified using Google Webmaster Tools. For instructions, please see:
+verified using Google Webmain Tools. For instructions, please see:
 
   https://developers.google.com/storage/docs/object-change-notification#_Authorization
 """

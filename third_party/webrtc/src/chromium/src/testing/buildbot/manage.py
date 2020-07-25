@@ -191,9 +191,9 @@ def print_convert(test_name, tests_location):
   print('')
   print('%d configs already ran on Swarming' % data['count_run_on_swarming'])
   print('%d used to run locally and were converted:' % data['count_run_local'])
-  for master, builders in sorted(data['local_configs'].iteritems()):
+  for main, builders in sorted(data['local_configs'].iteritems()):
     for builder in builders:
-      print('- %s: %s' % (master, builder))
+      print('- %s: %s' % (main, builder))
   print('')
   print('Ran:')
   print('  ./manage.py --convert %s' % test_name)

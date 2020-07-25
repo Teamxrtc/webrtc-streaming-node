@@ -268,7 +268,7 @@ def main():
       parser.error('Couldn\'t determine the scm')
 
     # TODO(maruel): HACK, remove me.
-    # When run a build slave, make sure buildbot knows that the checkout was
+    # When run a build subordinate, make sure buildbot knows that the checkout was
     # modified.
     if options.root_dir == 'src' and getpass.getuser() == 'chrome-bot':
       # See sourcedirIsPatched() in:

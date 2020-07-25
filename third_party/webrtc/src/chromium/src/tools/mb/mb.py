@@ -42,7 +42,7 @@ class MetaBuildWrapper(object):
     self.sep = os.sep
     self.args = argparse.Namespace()
     self.configs = {}
-    self.masters = {}
+    self.mains = {}
     self.mixins = {}
     self.private_configs = []
     self.common_dev_configs = []
@@ -52,8 +52,8 @@ class MetaBuildWrapper(object):
     def AddCommonOptions(subp):
       subp.add_argument('-b', '--builder',
                         help='builder name to look up config from')
-      subp.add_argument('-m', '--master',
-                        help='master name to look up config from')
+      subp.add_argument('-m', '--main',
+                        help='main name to look up config from')
       subp.add_argument('-c', '--config',
                         help='configuration to analyze')
       subp.add_argument('-f', '--config-file', metavar='PATH',
@@ -184,14 +184,14 @@ class MetaBuildWrapper(object):
       else:
         all_configs[config] = 'unsupported_configs'
 
-    for master in self.masters:
-      for builder in self.masters[master]:
-        config = self.masters[master][builder]
-        if config in all_configs and all_configs[config] not in self.masters:
+    for main in self.mains:
+      for builder in self.mains[main]:
+        config = self.mains[main][builder]
+        if config in all_configs and all_configs[config] not in self.mains:
           errs.append('Config "%s" used by a bot is also listed in "%s".' %
                       (config, all_configs[config]))
         else:
-          all_configs[config] = master
+          all_configs[config] = main
 
     # Check that every referenced config actually exists.
     for config, loc in all_configs.items():
@@ -254,32 +254,32 @@ class MetaBuildWrapper(object):
 
     self.common_dev_configs = contents['common_dev_configs']
     self.configs = contents['configs']
-    self.masters = contents['masters']
+    self.mains = contents['mains']
     self.mixins = contents['mixins']
     self.private_configs = contents['private_configs']
     self.unsupported_configs = contents['unsupported_configs']
 
   def ConfigFromArgs(self):
     if self.args.config:
-      if self.args.master or self.args.builder:
-        raise MBErr('Can not specific both -c/--config and -m/--master or '
+      if self.args.main or self.args.builder:
+        raise MBErr('Can not specific both -c/--config and -m/--main or '
                     '-b/--builder')
 
       return self.args.config
 
-    if not self.args.master or not self.args.builder:
+    if not self.args.main or not self.args.builder:
       raise MBErr('Must specify either -c/--config or '
-                  '(-m/--master and -b/--builder)')
+                  '(-m/--main and -b/--builder)')
 
-    if not self.args.master in self.masters:
-      raise MBErr('Master name "%s" not found in "%s"' %
-                  (self.args.master, self.args.config_file))
+    if not self.args.main in self.mains:
+      raise MBErr('Main name "%s" not found in "%s"' %
+                  (self.args.main, self.args.config_file))
 
-    if not self.args.builder in self.masters[self.args.master]:
-      raise MBErr('Builder name "%s"  not found under masters[%s] in "%s"' %
-                  (self.args.builder, self.args.master, self.args.config_file))
+    if not self.args.builder in self.mains[self.args.main]:
+      raise MBErr('Builder name "%s"  not found under mains[%s] in "%s"' %
+                  (self.args.builder, self.args.main, self.args.config_file))
 
-    return self.masters[self.args.master][self.args.builder]
+    return self.mains[self.args.main][self.args.builder]
 
   def FlattenConfig(self, config):
     mixins = self.configs[config]

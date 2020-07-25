@@ -27,7 +27,7 @@ DIR_BUILD_ROOT = os.path.dirname(CHROME_SRC_DIR)
 CHROME_OUT_DIR = bb_utils.CHROME_OUT_DIR
 BLINK_SCRIPTS_DIR = 'third_party/WebKit/Tools/Scripts'
 
-SLAVE_SCRIPTS_DIR = os.path.join(bb_utils.BB_BUILD_DIR, 'scripts', 'slave')
+SLAVE_SCRIPTS_DIR = os.path.join(bb_utils.BB_BUILD_DIR, 'scripts', 'subordinate')
 LOGCAT_DIR = os.path.join(bb_utils.CHROME_OUT_DIR, 'logcat')
 GS_URL = 'https://storage.googleapis.com'
 GS_AUTH_URL = 'https://storage.cloud.google.com'
@@ -297,7 +297,7 @@ def RunWebkitLayoutTests(options):
       '--target', options.target,
       '--builder-name', options.build_properties.get('buildername', ''),
       '--build-number', str(options.build_properties.get('buildnumber', '')),
-      '--master-name', 'ChromiumWebkit',  # TODO: Get this from the cfg.
+      '--main-name', 'ChromiumWebkit',  # TODO: Get this from the cfg.
       '--build-name', options.build_properties.get('buildername', ''),
       '--platform=android']
 
@@ -419,7 +419,7 @@ def _PrintDashboardLink(link_text, tests, max_tests):
 
   dashboard_base = ('http://test-results.appspot.com'
                     '/dashboards/flakiness_dashboard.html#'
-                    'master=ChromiumWebkit&tests=')
+                    'main=ChromiumWebkit&tests=')
 
   bb_annotations.PrintLink('%d %s: %s' %
                            (len(tests), link_text, test_list_text),
@@ -724,7 +724,7 @@ def GetDeviceStepsOptParser():
       help='The logcat dump output will be "tee"-ed into this file')
   # During processing perf bisects, a seperate working directory created under
   # which builds are produced. Therefore we should look for relevent output
-  # file under this directory.(/b/build/slave/<slave_name>/build/bisect/src/out)
+  # file under this directory.(/b/build/subordinate/<subordinate_name>/build/bisect/src/out)
   parser.add_option(
       '--chrome-output-dir',
       help='Chrome output directory to be used while bisecting.')

@@ -30,7 +30,7 @@ type serverHandshakeState struct {
 	ecdsaOk         bool
 	sessionState    *sessionState
 	finishedHash    finishedHash
-	masterSecret    []byte
+	mainSecret    []byte
 	certsFromClient [][]byte
 	cert            *Certificate
 	finishedBytes   []byte
@@ -115,7 +115,7 @@ func (c *Conn) serverHandshake() error {
 	c.handshakeComplete = true
 	copy(c.clientRandom[:], hs.clientHello.random)
 	copy(c.serverRandom[:], hs.hello.random)
-	copy(c.masterSecret[:], hs.masterSecret)
+	copy(c.mainSecret[:], hs.mainSecret)
 
 	return nil
 }
@@ -309,7 +309,7 @@ Curves:
 			hs.hello.nextProtos = config.NextProtos
 		}
 	}
-	hs.hello.extendedMasterSecret = c.vers >= VersionTLS10 && hs.clientHello.extendedMasterSecret && !c.config.Bugs.NoExtendedMasterSecret
+	hs.hello.extendedMainSecret = c.vers >= VersionTLS10 && hs.clientHello.extendedMainSecret && !c.config.Bugs.NoExtendedMainSecret
 
 	if len(config.Certificates) == 0 {
 		c.sendAlert(alertInternalError)
@@ -488,8 +488,8 @@ func (hs *serverHandshakeState) doResumeHandshake() error {
 		}
 	}
 
-	hs.masterSecret = hs.sessionState.masterSecret
-	c.extendedMasterSecret = hs.sessionState.extendedMasterSecret
+	hs.mainSecret = hs.sessionState.mainSecret
+	c.extendedMainSecret = hs.sessionState.extendedMainSecret
 
 	return nil
 }
@@ -512,7 +512,7 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 	if config.Bugs.SendCipherSuite != 0 {
 		hs.hello.cipherSuite = config.Bugs.SendCipherSuite
 	}
-	c.extendedMasterSecret = hs.hello.extendedMasterSecret
+	c.extendedMainSecret = hs.hello.extendedMainSecret
 
 	// Generate a session ID if we're to save the session.
 	if !hs.hello.ticketSupported && config.ServerSessionCache != nil {
@@ -647,18 +647,18 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 	}
 	hs.writeClientHash(ckx.marshal())
 
-	preMasterSecret, err := keyAgreement.processClientKeyExchange(config, hs.cert, ckx, c.vers)
+	preMainSecret, err := keyAgreement.processClientKeyExchange(config, hs.cert, ckx, c.vers)
 	if err != nil {
 		c.sendAlert(alertHandshakeFailure)
 		return err
 	}
-	if c.extendedMasterSecret {
-		hs.masterSecret = extendedMasterFromPreMasterSecret(c.vers, hs.suite, preMasterSecret, hs.finishedHash)
+	if c.extendedMainSecret {
+		hs.mainSecret = extendedMainFromPreMainSecret(c.vers, hs.suite, preMainSecret, hs.finishedHash)
 	} else {
-		if c.config.Bugs.RequireExtendedMasterSecret {
-			return errors.New("tls: extended master secret required but not supported by peer")
+		if c.config.Bugs.RequireExtendedMainSecret {
+			return errors.New("tls: extended main secret required but not supported by peer")
 		}
-		hs.masterSecret = masterFromPreMasterSecret(c.vers, hs.suite, preMasterSecret, hs.clientHello.random, hs.hello.random)
+		hs.mainSecret = mainFromPreMainSecret(c.vers, hs.suite, preMainSecret, hs.clientHello.random, hs.hello.random)
 	}
 
 	// If we received a client cert in response to our certificate request message,
@@ -713,7 +713,7 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 				break
 			}
 			var digest []byte
-			digest, _, err = hs.finishedHash.hashForClientCertificate(signatureAndHash, hs.masterSecret)
+			digest, _, err = hs.finishedHash.hashForClientCertificate(signatureAndHash, hs.mainSecret)
 			if err != nil {
 				break
 			}
@@ -728,7 +728,7 @@ func (hs *serverHandshakeState) doFullHandshake() error {
 			}
 			var digest []byte
 			var hashFunc crypto.Hash
-			digest, hashFunc, err = hs.finishedHash.hashForClientCertificate(signatureAndHash, hs.masterSecret)
+			digest, hashFunc, err = hs.finishedHash.hashForClientCertificate(signatureAndHash, hs.mainSecret)
 			if err != nil {
 				break
 			}
@@ -751,7 +751,7 @@ func (hs *serverHandshakeState) establishKeys() error {
 	c := hs.c
 
 	clientMAC, serverMAC, clientKey, serverKey, clientIV, serverIV :=
-		keysFromMasterSecret(c.vers, hs.suite, hs.masterSecret, hs.clientHello.random, hs.hello.random, hs.suite.macLen, hs.suite.keyLen, hs.suite.ivLen)
+		keysFromMainSecret(c.vers, hs.suite, hs.mainSecret, hs.clientHello.random, hs.hello.random, hs.suite.macLen, hs.suite.keyLen, hs.suite.ivLen)
 
 	var clientCipher, serverCipher interface{}
 	var clientHash, serverHash macFunction
@@ -834,7 +834,7 @@ func (hs *serverHandshakeState) readFinished(out []byte, isResume bool) error {
 		return unexpectedMessageError(clientFinished, msg)
 	}
 
-	verify := hs.finishedHash.clientSum(hs.masterSecret)
+	verify := hs.finishedHash.clientSum(hs.mainSecret)
 	if len(verify) != len(clientFinished.verifyData) ||
 		subtle.ConstantTimeCompare(verify, clientFinished.verifyData) != 1 {
 		c.sendAlert(alertHandshakeFailure)
@@ -852,7 +852,7 @@ func (hs *serverHandshakeState) sendSessionTicket() error {
 	state := sessionState{
 		vers:          c.vers,
 		cipherSuite:   hs.suite.id,
-		masterSecret:  hs.masterSecret,
+		mainSecret:  hs.mainSecret,
 		certificates:  hs.certsFromClient,
 		handshakeHash: hs.finishedHash.server.Sum(nil),
 	}
@@ -882,7 +882,7 @@ func (hs *serverHandshakeState) sendFinished(out []byte) error {
 	c := hs.c
 
 	finished := new(finishedMsg)
-	finished.verifyData = hs.finishedHash.serverSum(hs.masterSecret)
+	finished.verifyData = hs.finishedHash.serverSum(hs.mainSecret)
 	copy(out, finished.verifyData)
 	if c.config.Bugs.BadFinished {
 		finished.verifyData[0]++

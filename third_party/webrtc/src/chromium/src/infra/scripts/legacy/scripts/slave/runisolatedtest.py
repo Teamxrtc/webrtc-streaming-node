@@ -111,9 +111,9 @@ def run_test_isolated(isolate_script, test_exe, original_command):
   original_command = original_command[:]
   while original_command:
     item = original_command.pop(0)
-    if item == '--total-slave':
+    if item == '--total-subordinate':
       isolate_command.extend(['--shards', original_command.pop(0)])
-    elif item == '--slave-index':
+    elif item == '--subordinate-index':
       isolate_command.extend(['--index', original_command.pop(0)])
     elif item.startswith(('--gtest_filter',
                           '--gtest_output',

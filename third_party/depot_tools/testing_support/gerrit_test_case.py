@@ -292,24 +292,24 @@ class GerritTestCase(unittest.TestCase):
     return self._GetCommit(clone_path, ref)
 
   @classmethod
-  def _UploadChange(cls, clone_path, branch='master', remote='origin'):
+  def _UploadChange(cls, clone_path, branch='main', remote='origin'):
     """Create a gerrit CL from the HEAD of a git checkout."""
     cls.check_call(
         ['git', 'push', remote, 'HEAD:refs/for/%s' % branch], cwd=clone_path)
 
-  def uploadChange(self, clone_path, branch='master', remote='origin'):
+  def uploadChange(self, clone_path, branch='main', remote='origin'):
     """Create a gerrit CL from the HEAD of a git checkout."""
     clone_path = os.path.join(self.tempdir, clone_path)
     self._UploadChange(clone_path, branch, remote)
 
   @classmethod
-  def _PushBranch(cls, clone_path, branch='master'):
+  def _PushBranch(cls, clone_path, branch='main'):
     """Push a branch directly to gerrit, bypassing code review."""
     cls.check_call(
         ['git', 'push', 'origin', 'HEAD:refs/heads/%s' % branch],
         cwd=clone_path)
 
-  def pushBranch(self, clone_path, branch='master'):
+  def pushBranch(self, clone_path, branch='main'):
     """Push a branch directly to gerrit, bypassing code review."""
     clone_path = os.path.join(self.tempdir, clone_path)
     self._PushBranch(clone_path, branch)
@@ -387,7 +387,7 @@ class RepoTestCase(GerritTestCase):
   <remote name="remote2"
           fetch="%(gerrit_url)s"
           review="%(gerrit_host)s" />
-  <default revision="refs/heads/master" remote="remote1" sync-j="1" />
+  <default revision="refs/heads/main" remote="remote1" sync-j="1" />
   <project remote="remote1" path="localpath/testproj1" name="remotepath/testproj1" />
   <project remote="remote1" path="localpath/testproj2" name="remotepath/testproj2" />
   <project remote="remote2" path="localpath/testproj3" name="remotepath/testproj3" />
@@ -431,7 +431,7 @@ class RepoTestCase(GerritTestCase):
       clone_path = os.path.join(gi.gerrit_dir, 'tmp', proj)
       cls._CloneProject('remotepath/%s' % proj, clone_path)
       cls._CreateCommit(clone_path)
-      cls._PushBranch(clone_path, 'master')
+      cls._PushBranch(clone_path, 'main')
 
   def setUp(self):
     super(RepoTestCase, self).setUp()
@@ -464,7 +464,7 @@ class RepoTestCase(GerritTestCase):
     args[0].insert(0, cls.repo_exe)
     cls.check_call(*args, **kwargs)
 
-  def uploadChange(self, clone_path, branch='master', remote='origin'):
+  def uploadChange(self, clone_path, branch='main', remote='origin'):
     review_host = self.check_output(
         ['git', 'config', 'remote.%s.review' % remote],
         cwd=clone_path).strip()

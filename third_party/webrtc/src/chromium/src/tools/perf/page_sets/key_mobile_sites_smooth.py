@@ -178,7 +178,7 @@ class KeyMobileSitesSmoothPageSet(story.StorySet):
     # Why: #11 (Alexa global), google property; some blogger layouts
     # have infinite scroll but more interesting.
     self.AddStory(KeyMobileSitesSmoothPage(
-      url='http://googlewebmastercentral.blogspot.com/',
+      url='http://googlewebmaincentral.blogspot.com/',
       page_set=self, name='Blogger'))
 
     # Why: #18 (Alexa global), Picked an interesting post """

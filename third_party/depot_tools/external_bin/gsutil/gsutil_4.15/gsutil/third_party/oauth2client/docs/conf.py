@@ -17,7 +17,7 @@ extensions = [
 ]
 templates_path = ['_templates']
 source_suffix = '.rst'
-master_doc = 'index'
+main_doc = 'index'
 
 # General information about the project.
 project = u'oauth2client'

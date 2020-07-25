@@ -4,7 +4,7 @@
 
 """Runs perf tests.
 
-Our buildbot infrastructure requires each slave to run steps serially.
+Our buildbot infrastructure requires each subordinate to run steps serially.
 This is sub-optimal for android, where these steps can run independently on
 multiple connected devices.
 
@@ -358,7 +358,7 @@ class TestRunner(base_test_runner.BaseTestRunner):
     else:
       result_type = base_test_result.ResultType.FAIL
       # Since perf tests use device affinity, give the device a chance to
-      # recover if it is offline after a failure. Otherwise, the master sharder
+      # recover if it is offline after a failure. Otherwise, the main sharder
       # will remove it from the pool and future tests on this device will fail.
       try:
         self.device.WaitUntilFullyBooted(timeout=120)

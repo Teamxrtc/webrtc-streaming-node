@@ -275,8 +275,8 @@ class AutoRoller(object):
     # cross platform compatibility.
 
     if not ignore_checks:
-      if self._GetCurrentBranchName() != 'master':
-        logging.error('Please checkout the master branch.')
+      if self._GetCurrentBranchName() != 'main':
+        logging.error('Please checkout the main branch.')
         return -1
       if not self._IsTreeClean():
         logging.error('Please make sure you don\'t have any modified files.')
@@ -332,7 +332,7 @@ class AutoRoller(object):
         self._RunCommand(['git', 'cl', 'set_commit'])
         logging.debug('Sent the CL to the CQ. Monitor here: %s', cl_info.url)
 
-    # TODO(kjellander): Checkout masters/previous branches again.
+    # TODO(kjellander): Checkout mains/previous branches again.
     return 0
 
   def _UpdateDep(self, deps_filename, dep_relative_to_src, commit_info):
@@ -348,7 +348,7 @@ class AutoRoller(object):
     os.chdir(cwd)
 
   def _DeleteRollBranch(self):
-    self._RunCommand(['git', 'checkout', 'master'])
+    self._RunCommand(['git', 'checkout', 'main'])
     self._RunCommand(['git', 'branch', '-D', ROLL_BRANCH_NAME])
     logging.debug('Deleted the local roll branch (%s)', ROLL_BRANCH_NAME)
 
@@ -376,7 +376,7 @@ class AutoRoller(object):
   def Abort(self):
     active_branch, branches = self._GetBranches()
     if active_branch == ROLL_BRANCH_NAME:
-      active_branch = 'master'
+      active_branch = 'main'
     if ROLL_BRANCH_NAME in branches:
       print 'Aborting pending roll.'
       self._RunCommand(['git', 'checkout', ROLL_BRANCH_NAME])
@@ -416,7 +416,7 @@ def main():
   parser.add_argument('--dry-run', action='store_true', default=False,
       help='Create branches and CLs but doesn\'t send tryjobs or commit.')
   parser.add_argument('--ignore-checks', action='store_true', default=False,
-      help=('Skips checks for being on the master branch, dirty workspaces and '
+      help=('Skips checks for being on the main branch, dirty workspaces and '
             'the updating of the checkout. Will still delete and create local '
             'Git branches.'))
   parser.add_argument('-v', '--verbose', action='store_true', default=False,

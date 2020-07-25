@@ -7,7 +7,7 @@
 by their upstream ('tracking branch') layout.
 
 Example:
-origin/master
+origin/main
   cool_feature
     dependent_feature
     other_dependent_feature

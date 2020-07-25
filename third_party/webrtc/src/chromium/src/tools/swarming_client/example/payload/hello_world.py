@@ -3,7 +3,7 @@
 # Use of this source code is governed under the Apache License, Version 2.0 that
 # can be found in the LICENSE file.
 
-"""This script is meant to be run on a Swarming slave."""
+"""This script is meant to be run on a Swarming subordinate."""
 
 import os
 import sys

@@ -67,7 +67,7 @@ Examples:
     %(prog)s --email user@example.com
             --svn_repo svn://svn.chromium.org/chrome-try/try --diff foo.diff
 
-  Running only on a 'mac' slave with revision 123 and clobber first; specify
+  Running only on a 'mac' subordinate with revision 123 and clobber first; specify
   manually the 3 source files to use for the try job:
     %(prog)s --bot mac --revision 123 --clobber -f src/a.cc -f src/a.h
             -f include/b.h
@@ -374,7 +374,7 @@ def _ApplyTestFilter(testfilter, bot_spec):
 
 def _GenTSBotSpec(checkouts, change, changed_files, options):
   bot_spec = []
-  # Get try slaves from PRESUBMIT.py files if not specified.
+  # Get try subordinates from PRESUBMIT.py files if not specified.
   # Even if the diff comes from options.url, use the local checkout for bot
   # selection.
   try:
@@ -390,7 +390,7 @@ def _GenTSBotSpec(checkouts, change, changed_files, options):
                                         options.issue,
                                         options.patchset,
                                         options.email)
-    masters = presubmit_support.DoGetTryMasters(
+    mains = presubmit_support.DoGetTryMains(
         change,
         checkouts[0].GetFileNames(),
         checkouts[0].checkout_root,
@@ -400,12 +400,12 @@ def _GenTSBotSpec(checkouts, change, changed_files, options):
         sys.stdout)
 
     # Compatibility for old checkouts and bots that were on tryserver.chromium.
-    trybots = masters.get('tryserver.chromium', [])
+    trybots = mains.get('tryserver.chromium', [])
 
     # Compatibility for checkouts that are not using tryserver.chromium
     # but are stuck with git-try or gcl-try.
-    if not trybots and len(masters) == 1:
-      trybots = masters.values()[0]
+    if not trybots and len(mains) == 1:
+      trybots = mains.values()[0]
 
     if trybots:
       old_style = filter(lambda x: isinstance(x, basestring), trybots)
@@ -614,7 +614,7 @@ def _GetPatchGitRepo(git_url):
       logging.info('Work dir is dirty: hard reset!')
       scm.GIT.Capture(['reset', '--hard'], cwd=patch_dir)
     logging.info('Updating patch repo')
-    scm.GIT.Capture(['pull', 'origin', 'master'], cwd=patch_dir)
+    scm.GIT.Capture(['pull', 'origin', 'main'], cwd=patch_dir)
 
   return os.path.abspath(patch_dir)
 
@@ -623,8 +623,8 @@ def _SendChangeGit(bot_spec, options):
   """Sends a change to the try server by committing a diff file to a GIT repo.
 
   Creates a temp orphan branch, commits patch.diff, creates a ref pointing to
-  that commit, deletes the temp branch, checks master out, adds 'ref' file
-  containing the name of the new ref, pushes master and the ref to the origin.
+  that commit, deletes the temp branch, checks main out, adds 'ref' file
+  containing the name of the new ref, pushes main and the ref to the origin.
 
   TODO: instead of creating a temp branch, use git-commit-tree.
   """
@@ -665,7 +665,7 @@ def _SendChangeGit(bot_spec, options):
     target_filename = os.path.join(patch_dir, 'patch.diff')
     branch_file = os.path.join(patch_dir, GIT_BRANCH_FILE)
 
-    patch_git('checkout', 'master')
+    patch_git('checkout', 'main')
     try:
       # Try deleting an existing temp branch, if any.
       try:
@@ -685,10 +685,10 @@ def _SendChangeGit(bot_spec, options):
       patch_git('update-ref', target_ref, temp_branch)
 
       # Delete the temp ref.
-      patch_git('checkout', 'master')
+      patch_git('checkout', 'main')
       patch_git('branch', '-D', temp_branch)
 
-      # Update the branch file in the master.
+      # Update the branch file in the main.
       def update_branch():
         with open(branch_file, 'w') as f:
           f.write(target_ref)
@@ -696,23 +696,23 @@ def _SendChangeGit(bot_spec, options):
 
       update_branch()
 
-      # Push master and target_ref to origin.
+      # Push main and target_ref to origin.
       logging.info('Pushing patch')
       for attempt in xrange(_GIT_PUSH_ATTEMPTS):
         try:
-          patch_git('push', 'origin', 'master', target_ref)
+          patch_git('push', 'origin', 'main', target_ref)
         except subprocess2.CalledProcessError as e:
           is_last = attempt == _GIT_PUSH_ATTEMPTS - 1
           if is_last:
             raise NoTryServerAccess(str(e))
           # Fetch, reset, update branch file again.
           patch_git('fetch', 'origin')
-          patch_git('reset', '--hard', 'origin/master')
+          patch_git('reset', '--hard', 'origin/main')
           update_branch()
     except subprocess2.CalledProcessError, e:
       # Restore state.
-      patch_git('checkout', 'master')
-      patch_git('reset', '--hard', 'origin/master')
+      patch_git('checkout', 'main')
+      patch_git('reset', '--hard', 'origin/main')
       raise
 
   PrintSuccess(bot_spec, options)

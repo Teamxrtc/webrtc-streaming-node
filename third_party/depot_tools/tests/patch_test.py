@@ -74,7 +74,7 @@ class PatchTest(unittest.TestCase):
     self._check_patch(p, 'chrome/file.cc', RAW.PATCH, nb_hunks=1)
 
   def testDifferent(self):
-    name = 'master/unittests/data/processes-summary.dat'
+    name = 'main/unittests/data/processes-summary.dat'
     p = patch.FilePatchDiff(name, RAW.DIFFERENT, [])
     self._check_patch(p, name, RAW.DIFFERENT, nb_hunks=1)
 

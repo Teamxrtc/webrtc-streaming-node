@@ -90,7 +90,7 @@ if Off > len(key):
     data = data.replace('</span><span class="stdout">', '')
     # Fix up the source paths to match my local /analyze repo
     if "ANALYZE_REPO" in os.environ:
-      sourcePath = r"e:\b\build\slave\chromium_windows_analyze\build\src"
+      sourcePath = r"e:\b\build\subordinate\chromium_windows_analyze\build\src"
       destPath = os.path.join(os.environ["ANALYZE_REPO"], "src")
       data = data.replace(sourcePath, destPath)
     outputName = "analyze%04d_full.txt" % buildNumber

@@ -23,7 +23,7 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 ISOLATE = os.path.join(THIS_DIR, 'luci_recipe_run.isolate')
 
 # This is put in place in order to not need to parse this information from
-# master.cfg.  In the LUCI future this would all be stored in a luci.cfg
+# main.cfg.  In the LUCI future this would all be stored in a luci.cfg
 # file alongside the repo.
 RECIPE_MAPPING = {
     'Infra Linux Trusty 64 Tester':
@@ -43,7 +43,7 @@ RECIPE_MAPPING = {
 
 def parse_args(args):
   # Once Clank switches to bot_update, bot_update would no longer require
-  # master/builder detection, and we can remove the master/builder from the args
+  # main/builder detection, and we can remove the main/builder from the args
   parser = argparse.ArgumentParser()
   parser.add_argument('--builder', required=True)
   parser.add_argument('--issue',required=True)
@@ -95,13 +95,13 @@ def trigger_swarm(isolated, platform, build_props, factory_props):
 
 def trigger(builder, revision, issue, patchset, project):
   """Constructs/uploads an isolated file and send the job to swarming."""
-  master, recipe, platform = RECIPE_MAPPING[builder]
+  main, recipe, platform = RECIPE_MAPPING[builder]
   build_props = {
     'buildnumber': 1,
     'buildername': builder,
     'recipe': recipe,
-    'mastername': master,
-    'slavename': 'fakeslave',
+    'mainname': main,
+    'subordinatename': 'fakesubordinate',
     'revision': revision,
     'patch_project': project,
   }

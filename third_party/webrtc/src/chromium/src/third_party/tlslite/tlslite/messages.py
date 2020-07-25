@@ -114,7 +114,7 @@ class ClientHello(HandshakeMsg):
         self.supports_npn = False
         self.server_name = bytearray(0)
         self.channel_id = False
-        self.extended_master_secret = False
+        self.extended_main_secret = False
         self.tb_client_params = []
         self.support_signed_cert_timestamps = False
         self.status_request = False
@@ -187,8 +187,8 @@ class ClientHello(HandshakeMsg):
                                 break
                     elif extType == ExtensionType.channel_id:
                         self.channel_id = True
-                    elif extType == ExtensionType.extended_master_secret:
-                        self.extended_master_secret = True
+                    elif extType == ExtensionType.extended_main_secret:
+                        self.extended_main_secret = True
                     elif extType == ExtensionType.token_binding:
                         tokenBindingBytes = p.getFixBytes(extLength)
                         p2 = Parser(tokenBindingBytes)
@@ -280,7 +280,7 @@ class ServerHello(HandshakeMsg):
         self.next_protos_advertised = None
         self.next_protos = None
         self.channel_id = False
-        self.extended_master_secret = False
+        self.extended_main_secret = False
         self.tb_params = None
         self.signed_cert_timestamps = None
         self.status_request = False
@@ -373,8 +373,8 @@ class ServerHello(HandshakeMsg):
         if self.channel_id:
             w2.add(ExtensionType.channel_id, 2)
             w2.add(0, 2)
-        if self.extended_master_secret:
-            w2.add(ExtensionType.extended_master_secret, 2)
+        if self.extended_main_secret:
+            w2.add(ExtensionType.extended_main_secret, 2)
             w2.add(0, 2)
         if self.tb_params:
             w2.add(ExtensionType.token_binding, 2)
@@ -640,14 +640,14 @@ class ClientKeyExchange(HandshakeMsg):
         self.cipherSuite = cipherSuite
         self.version = version
         self.srp_A = 0
-        self.encryptedPreMasterSecret = bytearray(0)
+        self.encryptedPreMainSecret = bytearray(0)
 
     def createSRP(self, srp_A):
         self.srp_A = srp_A
         return self
 
-    def createRSA(self, encryptedPreMasterSecret):
-        self.encryptedPreMasterSecret = encryptedPreMasterSecret
+    def createRSA(self, encryptedPreMainSecret):
+        self.encryptedPreMainSecret = encryptedPreMainSecret
         return self
     
     def createDH(self, dh_Yc):
@@ -660,9 +660,9 @@ class ClientKeyExchange(HandshakeMsg):
             self.srp_A = bytesToNumber(p.getVarBytes(2))
         elif self.cipherSuite in CipherSuite.certSuites:
             if self.version in ((3,1), (3,2), (3,3)):
-                self.encryptedPreMasterSecret = p.getVarBytes(2)
+                self.encryptedPreMainSecret = p.getVarBytes(2)
             elif self.version == (3,0):
-                self.encryptedPreMasterSecret = \
+                self.encryptedPreMainSecret = \
                     p.getFixBytes(len(p.bytes)-p.index)
             else:
                 raise AssertionError()
@@ -681,9 +681,9 @@ class ClientKeyExchange(HandshakeMsg):
             w.addVarSeq(numberToByteArray(self.srp_A), 1, 2)
         elif self.cipherSuite in CipherSuite.certSuites:
             if self.version in ((3,1), (3,2), (3,3)):
-                w.addVarSeq(self.encryptedPreMasterSecret, 1, 2)
+                w.addVarSeq(self.encryptedPreMainSecret, 1, 2)
             elif self.version == (3,0):
-                w.addFixSeq(self.encryptedPreMasterSecret, 1)
+                w.addFixSeq(self.encryptedPreMainSecret, 1)
             else:
                 raise AssertionError()
         elif self.cipherSuite in CipherSuite.anonSuites:

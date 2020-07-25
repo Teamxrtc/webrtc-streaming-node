@@ -118,8 +118,8 @@ You may want to try bisecting on a different platform or metric.
 
 # Git branch name used to run bisect try jobs.
 BISECT_TRYJOB_BRANCH = 'bisect-tryjob'
-# Git master branch name.
-BISECT_MASTER_BRANCH = 'master'
+# Git main branch name.
+BISECT_MASTER_BRANCH = 'main'
 # File to store 'git diff' content.
 BISECT_PATCH_FILE = 'deps_patch.txt'
 # SVN repo where the bisect try jobs are submitted.
@@ -557,7 +557,7 @@ def _PrepareBisectBranch(parent_branch, new_branch):
     raise RunGitError('Must be in a git repository to send changes to trybots.')
 
   current_branch = current_branch.strip()
-  # Make sure current branch is master.
+  # Make sure current branch is main.
   if current_branch != parent_branch:
     output, returncode = bisect_utils.RunGit(['checkout', '-f', parent_branch])
     if returncode:
@@ -638,7 +638,7 @@ def _StartBuilderTryJob(
     except OSError as e:
       if e.errno != errno.ENOENT:
         raise
-    # Checkout master branch and delete bisect-tryjob branch.
+    # Checkout main branch and delete bisect-tryjob branch.
     bisect_utils.RunGit(['checkout', '-f', BISECT_MASTER_BRANCH])
     bisect_utils.RunGit(['branch', '-D', BISECT_TRYJOB_BRANCH])
 
@@ -923,7 +923,7 @@ class BisectPerformanceMetrics(object):
                    'Error: %s', git_revision, e)
       return None
 
-    # Get the buildbot master URL to monitor build status.
+    # Get the buildbot main URL to monitor build status.
     buildbot_server_url = fetch_build.GetBuildBotUrl(
         builder_type=self.opts.builder_type,
         target_arch=self.opts.target_arch,
@@ -1692,8 +1692,8 @@ class BisectPerformanceMetrics(object):
     with bits and pieces cherry picked out from bleeding edge. In order to
     bisect, we need both the before/after versions on trunk v8 to be just pushes
     from bleeding edge. With the V8 git migration, the branches got switched.
-    a) master (external/v8) == candidates (v8/v8)
-    b) bleeding_edge (external/v8) == master (v8/v8)
+    a) main (external/v8) == candidates (v8/v8)
+    b) bleeding_edge (external/v8) == main (v8/v8)
 
     Args:
       revision: A V8 revision to get its nearest bleeding edge revision
@@ -1742,7 +1742,7 @@ class BisectPerformanceMetrics(object):
     cwd = self.depot_registry.GetDepotDir('v8')
     # when "remote.origin.url" is https://chromium.googlesource.com/v8/v8.git
     v8_branch = 'origin/candidates'
-    bleeding_edge_branch = 'origin/master'
+    bleeding_edge_branch = 'origin/main'
 
     # Support for the chromium revisions with external V8 repo.
     # ie https://chromium.googlesource.com/external/v8.git
@@ -1750,7 +1750,7 @@ class BisectPerformanceMetrics(object):
     v8_repo_url = bisect_utils.CheckRunGit(cmd, cwd=cwd)
 
     if 'external/v8.git' in v8_repo_url:
-      v8_branch = 'origin/master'
+      v8_branch = 'origin/main'
       bleeding_edge_branch = 'origin/bleeding_edge'
 
     r1 = self._GetNearestV8BleedingEdgeFromTrunk(
@@ -1951,7 +1951,7 @@ class BisectPerformanceMetrics(object):
               'log', '--format=%H', '-1',
               '--before=%d' % (commit_time + 900),
               '--after=%d' % commit_time,
-              'origin/master', '--', bisect_utils.FILE_DEPS_GIT
+              'origin/main', '--', bisect_utils.FILE_DEPS_GIT
           ]
           output = bisect_utils.CheckRunGit(cmd)
           output = output.strip()
@@ -2839,11 +2839,11 @@ def main():
       raise RuntimeError(
           'Sorry, only the git workflow is supported at the moment.')
 
-    # gClient sync seems to fail if you're not in master branch.
+    # gClient sync seems to fail if you're not in main branch.
     if (not source_control.IsInProperBranch() and
         not opts.debug_ignore_sync and
         not opts.working_directory):
-      raise RuntimeError('You must switch to master branch to run bisection.')
+      raise RuntimeError('You must switch to main branch to run bisection.')
     bisect_test = BisectPerformanceMetrics(opts, os.getcwd())
     try:
       results = bisect_test.Run(opts.command, opts.bad_revision,

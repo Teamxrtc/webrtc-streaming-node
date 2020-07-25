@@ -11,7 +11,7 @@ TODO(stip): Move the perf dashboard code from runtest.py to here.
 
 import re
 
-from slave import slave_utils
+from subordinate import subordinate_utils
 
 
 # Status codes that can be returned by the evaluateCommand method.
@@ -62,7 +62,7 @@ def getText(result, observer, name):
   # TODO(xusydoc): see if 'crashed or hung' should be tracked by RunningTests().
   if failed_test_count:
     failure_text = ['failed %d' % failed_test_count]
-    if observer.master_name:
+    if observer.main_name:
       # Include the link to the flakiness dashboard.
       failure_text.append('<div class="BuildResultInfo">')
       failure_text.append('<a href="%s#testType=%s'
@@ -89,15 +89,15 @@ def annotate(test_name, result, log_processor, perf_dashboard_id=None):
 
   for failure in sorted(log_processor.FailedTests()):
     clean_test_name = re.sub(r'[^\w\.\-]', '_', failure)
-    slave_utils.WriteLogLines(clean_test_name,
+    subordinate_utils.WriteLogLines(clean_test_name,
                               log_processor.FailureDescription(failure))
   for report_hash in sorted(log_processor.MemoryToolReportHashes()):
-    slave_utils.WriteLogLines(report_hash,
+    subordinate_utils.WriteLogLines(report_hash,
                               log_processor.MemoryToolReport(report_hash))
 
   if log_processor.ParsingErrors():
     # Generate a log file containing the list of errors.
-    slave_utils.WriteLogLines('log parsing error(s)',
+    subordinate_utils.WriteLogLines('log parsing error(s)',
                               log_processor.ParsingErrors())
 
     log_processor.ClearParsingErrors()
@@ -113,7 +113,7 @@ def annotate(test_name, result, log_processor, perf_dashboard_id=None):
         len(log_processor.MemoryToolReportHashes())):
       print '@@@STEP_WARNINGS@@@'
       get_text_result = WARNINGS
-  elif result == slave_utils.WARNING_EXIT_CODE:
+  elif result == subordinate_utils.WARNING_EXIT_CODE:
     print '@@@STEP_WARNINGS@@@'
     get_text_result = WARNINGS
   else:
@@ -129,4 +129,4 @@ def annotate(test_name, result, log_processor, perf_dashboard_id=None):
                       'no test_id in factory_properties!')
     for logname, log in log_processor.PerformanceLogs().iteritems():
       lines = [str(l).rstrip() for l in log]
-      slave_utils.WriteLogLines(logname, lines, perf=perf_dashboard_id)
+      subordinate_utils.WriteLogLines(logname, lines, perf=perf_dashboard_id)

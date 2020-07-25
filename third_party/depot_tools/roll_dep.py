@@ -6,7 +6,7 @@
 """Rolls DEPS controlled dependency.
 
 Works only with git checkout and git dependencies.  Currently this
-script will always roll to the tip of to origin/master.
+script will always roll to the tip of to origin/main.
 """
 
 import argparse
@@ -34,23 +34,23 @@ def check_call(*args, **kwargs):
   subprocess.check_call(*args, **kwargs)
 
 
-def is_pristine(root, merge_base='origin/master'):
+def is_pristine(root, merge_base='origin/main'):
   """Returns True if a git checkout is pristine."""
   cmd = ['git', 'diff', '--ignore-submodules', merge_base]
   return not (check_output(cmd, cwd=root).strip() or
               check_output(cmd + ['--cached'], cwd=root).strip())
 
 
-def get_log_url(upstream_url, head, master):
+def get_log_url(upstream_url, head, main):
   """Returns an URL to read logs via a Web UI if applicable."""
   if re.match(r'https://[^/]*\.googlesource\.com/', upstream_url):
     # gitiles
-    return '%s/+log/%s..%s' % (upstream_url, head[:12], master[:12])
+    return '%s/+log/%s..%s' % (upstream_url, head[:12], main[:12])
   if upstream_url.startswith('https://github.com/'):
     upstream_url = upstream_url.rstrip('/')
     if upstream_url.endswith('.git'):
       upstream_url = upstream_url[:-len('.git')]
-    return '%s/compare/%s...%s' % (upstream_url, head[:12], master[:12])
+    return '%s/compare/%s...%s' % (upstream_url, head[:12], main[:12])
   return None
 
 
@@ -185,7 +185,7 @@ def main():
       '--log-limit', type=int, default=100,
       help='Trim log after N commits (default: %(default)s)')
   parser.add_argument(
-      '--roll-to', default='origin/master',
+      '--roll-to', default='origin/main',
       help='Specify the new commit to roll to (default: %(default)s)')
   parser.add_argument('dep_path', help='Path to dependency')
   parser.add_argument('key', nargs='?',

@@ -127,7 +127,7 @@ class BlinkMemoryMobilePageSet(story.StorySet):
     # Why: Key products.
     self.AddStory(GmailPage(page_set=self))
     self.AddStory(BlinkMemoryMobilePage(
-        'http://googlewebmastercentral.blogspot.com/2015/04/rolling-out-mobile-friendly-update.html?m=1',
+        'http://googlewebmaincentral.blogspot.com/2015/04/rolling-out-mobile-friendly-update.html?m=1',
         page_set=self,
         name='Blogger'))
     self.AddStory(BlinkMemoryMobilePage(

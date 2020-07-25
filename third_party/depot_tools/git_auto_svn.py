@@ -5,7 +5,7 @@
 
 """Performs all git-svn setup steps necessary for 'git svn dcommit' to work.
 
-Assumes that trunk of the svn remote maps to master of the git remote.
+Assumes that trunk of the svn remote maps to main of the git remote.
 
 Example:
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools

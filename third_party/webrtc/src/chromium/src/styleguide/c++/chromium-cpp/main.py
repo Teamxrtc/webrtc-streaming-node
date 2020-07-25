@@ -21,7 +21,7 @@ class MainHandler(webapp2.RequestHandler):
 
 
 BASE = 'https://chromium.googlesource.com/chromium/src.git/' \
-       '+/master/styleguide/c++/%s?format=TEXT'
+       '+/main/styleguide/c++/%s?format=TEXT'
 class GitilesMirrorHandler(webapp2.RequestHandler):
     def get(self, resource):
         if '..' in resource:  # No path traversal.

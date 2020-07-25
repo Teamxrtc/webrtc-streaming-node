@@ -20,10 +20,10 @@ import (
 type sessionState struct {
 	vers                 uint16
 	cipherSuite          uint16
-	masterSecret         []byte
+	mainSecret         []byte
 	handshakeHash        []byte
 	certificates         [][]byte
-	extendedMasterSecret bool
+	extendedMainSecret bool
 }
 
 func (s *sessionState) equal(i interface{}) bool {
@@ -34,9 +34,9 @@ func (s *sessionState) equal(i interface{}) bool {
 
 	if s.vers != s1.vers ||
 		s.cipherSuite != s1.cipherSuite ||
-		!bytes.Equal(s.masterSecret, s1.masterSecret) ||
+		!bytes.Equal(s.mainSecret, s1.mainSecret) ||
 		!bytes.Equal(s.handshakeHash, s1.handshakeHash) ||
-		s.extendedMasterSecret != s1.extendedMasterSecret {
+		s.extendedMainSecret != s1.extendedMainSecret {
 		return false
 	}
 
@@ -54,7 +54,7 @@ func (s *sessionState) equal(i interface{}) bool {
 }
 
 func (s *sessionState) marshal() []byte {
-	length := 2 + 2 + 2 + len(s.masterSecret) + 2 + len(s.handshakeHash) + 2
+	length := 2 + 2 + 2 + len(s.mainSecret) + 2 + len(s.handshakeHash) + 2
 	for _, cert := range s.certificates {
 		length += 4 + len(cert)
 	}
@@ -66,11 +66,11 @@ func (s *sessionState) marshal() []byte {
 	x[1] = byte(s.vers)
 	x[2] = byte(s.cipherSuite >> 8)
 	x[3] = byte(s.cipherSuite)
-	x[4] = byte(len(s.masterSecret) >> 8)
-	x[5] = byte(len(s.masterSecret))
+	x[4] = byte(len(s.mainSecret) >> 8)
+	x[5] = byte(len(s.mainSecret))
 	x = x[6:]
-	copy(x, s.masterSecret)
-	x = x[len(s.masterSecret):]
+	copy(x, s.mainSecret)
+	x = x[len(s.mainSecret):]
 
 	x[0] = byte(len(s.handshakeHash) >> 8)
 	x[1] = byte(len(s.handshakeHash))
@@ -91,7 +91,7 @@ func (s *sessionState) marshal() []byte {
 		x = x[4+len(cert):]
 	}
 
-	if s.extendedMasterSecret {
+	if s.extendedMainSecret {
 		x[0] = 1
 	}
 	x = x[1:]
@@ -106,14 +106,14 @@ func (s *sessionState) unmarshal(data []byte) bool {
 
 	s.vers = uint16(data[0])<<8 | uint16(data[1])
 	s.cipherSuite = uint16(data[2])<<8 | uint16(data[3])
-	masterSecretLen := int(data[4])<<8 | int(data[5])
+	mainSecretLen := int(data[4])<<8 | int(data[5])
 	data = data[6:]
-	if len(data) < masterSecretLen {
+	if len(data) < mainSecretLen {
 		return false
 	}
 
-	s.masterSecret = data[:masterSecretLen]
-	data = data[masterSecretLen:]
+	s.mainSecret = data[:mainSecretLen]
+	data = data[mainSecretLen:]
 
 	if len(data) < 2 {
 		return false
@@ -156,9 +156,9 @@ func (s *sessionState) unmarshal(data []byte) bool {
 		return false
 	}
 
-	s.extendedMasterSecret = false
+	s.extendedMainSecret = false
 	if data[0] == 1 {
-		s.extendedMasterSecret = true
+		s.extendedMainSecret = true
 	}
 	data = data[1:]
 

@@ -87,7 +87,7 @@ class KeyMobileSitesRepaintPageSet(story.StorySet):
     # Why: #11 (Alexa global), google property; some blogger layouts
     # have infinite scroll but more interesting.
     self.AddStory(KeyMobileSitesRepaintPage(
-      url='http://googlewebmastercentral.blogspot.com/',
+      url='http://googlewebmaincentral.blogspot.com/',
       page_set=self, name='Blogger', mode=mode, height=height, width=width))
 
     # Why: #18 (Alexa global), Picked an interesting post """

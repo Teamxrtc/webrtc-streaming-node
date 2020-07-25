@@ -742,9 +742,9 @@ class IsolateLoad(IsolateBase):
     # By saving the files, it forces splitting the data up.
     complete_state.save_files()
 
-    actual_isolated_master = tools.read_json(
+    actual_isolated_main = tools.read_json(
         os.path.join(self.isolated_dir, 'foo.isolated'))
-    expected_isolated_master = {
+    expected_isolated_main = {
       u'algo': u'sha-1',
       u'command': [u'python', u'split.py'],
       u'files': {
@@ -762,8 +762,8 @@ class IsolateLoad(IsolateBase):
       u'relative_cwd': u'.',
       u'version': unicode(isolated_format.ISOLATED_FILE_VERSION),
     }
-    self._cleanup_isolated(expected_isolated_master)
-    self.assertEqual(expected_isolated_master, actual_isolated_master)
+    self._cleanup_isolated(expected_isolated_main)
+    self.assertEqual(expected_isolated_main, actual_isolated_main)
 
     actual_isolated_0 = tools.read_json(
         os.path.join(self.isolated_dir, 'foo.0.isolated'))

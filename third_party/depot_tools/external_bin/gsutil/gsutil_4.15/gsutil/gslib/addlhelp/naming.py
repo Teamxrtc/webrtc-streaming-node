@@ -94,8 +94,8 @@ _DETAILED_HELP_TEXT = ("""
   user who creates the bucket, so the user who creates the bucket must
   also be verified as an owner or manager of the domain.
 
-  To verify as the owner or manager of a domain, use the Google Webmaster
-  Tools verification process. The Webmaster Tools verification process
+  To verify as the owner or manager of a domain, use the Google Webmain
+  Tools verification process. The Webmain Tools verification process
   provides three methods for verifying an owner or manager of a domain:
 
   1. Adding a special Meta tag to a site's homepage.

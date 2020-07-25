@@ -5,7 +5,7 @@
 
 """A tool used to run a Chrome test executable and process the output.
 
-This script is used by the buildbot slaves. It must be run from the outer
+This script is used by the buildbot subordinates. It must be run from the outer
 build directory, e.g. chrome-release/build/.
 
 For a list of command-line options, call this script with '--help'.
@@ -23,10 +23,10 @@ import sys
 from common import chromium_utils
 from common import gtest_utils
 
-from slave import annotation_utils
-from slave import build_directory
-from slave import slave_utils
-from slave import xvfb
+from subordinate import annotation_utils
+from subordinate import build_directory
+from subordinate import subordinate_utils
+from subordinate import xvfb
 
 USAGE = '%s [options] test.exe [test args]' % os.path.basename(sys.argv[0])
 
@@ -242,11 +242,11 @@ def _Main(options, args, extra_env):
   log_processor = None
   if _UsingGtestJson(options):
     log_processor = gtest_utils.GTestJSONParser(
-        options.build_properties.get('mastername'))
+        options.build_properties.get('mainname'))
 
   try:
     # TODO(dpranke): checking on test_exe is a temporary hack until we
-    # can change the buildbot master to pass --xvfb instead of --no-xvfb
+    # can change the buildbot main to pass --xvfb instead of --no-xvfb
     # for these two steps. See
     # https://code.google.com/p/chromium/issues/detail?id=179814
     start_xvfb = (
@@ -443,10 +443,10 @@ def main():
                            help='File to dump gtest log processor results.')
   option_parser.add_option('--builder-name', default=None,
                            help='The name of the builder running this script.')
-  option_parser.add_option('--slave-name', default=None,
-                           help='The name of the slave running this script.')
-  option_parser.add_option('--master-class-name', default=None,
-                           help='The class name of the buildbot master running '
+  option_parser.add_option('--subordinate-name', default=None,
+                           help='The name of the subordinate running this script.')
+  option_parser.add_option('--main-class-name', default=None,
+                           help='The class name of the buildbot main running '
                                 'this script: examples include "Chromium", '
                                 '"ChromiumWebkit", and "ChromiumGPU". The '
                                 'flakiness dashboard uses this value to '
@@ -454,7 +454,7 @@ def main():
                                 'in the flakiness dashboard code '
                                 '(use codesearch) for the known values. '
                                 'Defaults to fetching it from '
-                                'slaves.cfg/builders.pyl.')
+                                'subordinates.cfg/builders.pyl.')
   option_parser.add_option('--build-number', default=None,
                            help=('The build number of the builder running'
                                  'this script.'))

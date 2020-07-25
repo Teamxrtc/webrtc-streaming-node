@@ -73,7 +73,7 @@ def main():
   parser.add_option('-r', '--reviewers', default='',
                     help='Add given users as either reviewers or TBR as'
                     ' appropriate.')
-  parser.add_option('--upstream', default='origin/master',
+  parser.add_option('--upstream', default='origin/main',
                     help='(default "%default") Use given start point for change'
                     ' to upload. For instance, if you use the old git workflow,'
                     ' you might set it to "origin/trunk".')

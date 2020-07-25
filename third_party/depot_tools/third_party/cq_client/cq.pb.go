@@ -433,9 +433,9 @@ func (m *Verifiers_TryJobVerifier_Builder) GetExperimentPercentage() float32 {
 }
 
 type Verifiers_TryJobVerifier_Bucket struct {
-	// Name of the bucket. This is typically the same as a master name without
-	// the 'master.' prefix, e.g. 'chromium.linux' or 'tryserver.webrtc'. CQ
-	// will automatically add 'master.' prefix if not there.
+	// Name of the bucket. This is typically the same as a main name without
+	// the 'main.' prefix, e.g. 'chromium.linux' or 'tryserver.webrtc'. CQ
+	// will automatically add 'main.' prefix if not there.
 	Name *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	// Builders on which tryjobs should be triggered.
 	Builders         []*Verifiers_TryJobVerifier_Builder `protobuf:"bytes,2,rep,name=builders" json:"builders,omitempty"`

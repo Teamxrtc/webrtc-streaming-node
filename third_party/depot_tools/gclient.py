@@ -241,7 +241,7 @@ class DependencySettings(GClientKeywords):
     self._custom_deps = custom_deps or {}
     self._custom_hooks = custom_hooks or []
 
-    # TODO(iannucci): Remove this when all masters are correctly substituting
+    # TODO(iannucci): Remove this when all mains are correctly substituting
     # the new blink url.
     if (self._custom_vars.get('webkit_trunk', '') ==
         'svn://svn-mirror.golo.chromium.org/webkit-readonly/trunk'):

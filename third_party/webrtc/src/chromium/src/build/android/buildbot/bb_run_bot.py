@@ -77,10 +77,10 @@ def GetEnvironment(host_obj, testing, extra_env_vars=None):
     if re.search('(asan|clang)=1', extra_gyp):
       env.pop('CXX_target', None)
 
-  # Bots checkout chrome in /b/build/slave/<name>/build/src
+  # Bots checkout chrome in /b/build/subordinate/<name>/build/src
   build_internal_android = os.path.abspath(os.path.join(
       bb_utils.CHROME_SRC, '..', '..', '..', '..', '..', 'build_internal',
-      'scripts', 'slave', 'android'))
+      'scripts', 'subordinate', 'android'))
   if os.path.exists(build_internal_android):
     env['PATH'] = os.pathsep.join([build_internal_android, env['PATH']])
   return env

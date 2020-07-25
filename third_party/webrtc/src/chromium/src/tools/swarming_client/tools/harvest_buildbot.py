@@ -38,7 +38,7 @@ def parse(b, horizon):
   NO_KEY = 'Warning: Unable to find any tests with the name'
   HTTP_404 = 'threw HTTP Error 404: Not Found'
   for build in failed_builds:
-    print('%s/%d on %s' % (build.builder.name, build.number, build.slave.name))
+    print('%s/%d on %s' % (build.builder.name, build.number, build.subordinate.name))
     swarm_trigger_tests = build.steps['swarm_trigger_tests']
     base_unittests = build.steps['base_unittests']
     fail = ''

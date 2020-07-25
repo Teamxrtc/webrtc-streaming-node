@@ -133,7 +133,7 @@ class GNRoller(object):
     new_gn_commitish = first_line.split()[1]
 
     last_line = commit_msg[-1]
-    new_gn_version = re.sub('.*master@{#(\d+)}', '\\1', last_line)
+    new_gn_version = re.sub('.*main@{#(\d+)}', '\\1', last_line)
 
     return new_gn_commitish, new_gn_version
 
@@ -318,9 +318,9 @@ class GNRoller(object):
 
     # Reset buildtools to the new commit so that we're not still on the
     # merged branch.
-    self.Call('git checkout origin/master', cwd=self.buildtools_dir)
+    self.Call('git checkout origin/main', cwd=self.buildtools_dir)
 
-    _, out, _ = self.Call('git rev-parse origin/master',
+    _, out, _ = self.Call('git rev-parse origin/main',
                           cwd=self.buildtools_dir)
     new_buildtools_commitish = out.strip()
     print('Ready to roll buildtools to %s in DEPS' % new_buildtools_commitish)
@@ -334,7 +334,7 @@ class GNRoller(object):
             self.new_gn_version)
       return 1
 
-    _, out, _ = self.Call('git rev-parse origin/master',
+    _, out, _ = self.Call('git rev-parse origin/main',
                           cwd=self.buildtools_dir)
     new_buildtools_commitish = out.strip()
 

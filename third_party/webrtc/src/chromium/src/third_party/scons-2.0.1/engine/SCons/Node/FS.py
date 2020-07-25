@@ -915,14 +915,14 @@ class Entry(Base):
             self._morph()
             self.clear()
 
-    # The following methods can get called before the Taskmaster has
+    # The following methods can get called before the Taskmain has
     # had a chance to call disambiguate() directly to see if this Entry
     # should really be a Dir or a File.  We therefore use these to call
     # disambiguate() transparently (from our caller's point of view).
     #
     # Right now, this minimal set of methods has been derived by just
     # looking at some of the methods that will obviously be called early
-    # in any of the various Taskmasters' calling sequences, and then
+    # in any of the various Taskmains' calling sequences, and then
     # empirically figuring out which additional methods are necessary
     # to make various tests pass.
 
@@ -1557,7 +1557,7 @@ class Dir(Base):
         return scanner(self, env, path)
 
     #
-    # Taskmaster interface subsystem
+    # Taskmain interface subsystem
     #
 
     def prepare(self):
@@ -2643,7 +2643,7 @@ class File(Base):
             raise e
 
     #
-    # Taskmaster interface subsystem
+    # Taskmain interface subsystem
     #
 
     def make_ready(self):

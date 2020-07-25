@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Functions specific to build slaves, shared by several buildbot scripts.
+"""Functions specific to build subordinates, shared by several buildbot scripts.
 """
 
 import datetime

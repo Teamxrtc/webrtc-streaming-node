@@ -37,7 +37,7 @@ type Conn struct {
 	config               *Config    // configuration passed to constructor
 	handshakeComplete    bool
 	didResume            bool // whether this connection was a session resumption
-	extendedMasterSecret bool // whether this session used an extended master secret
+	extendedMainSecret bool // whether this session used an extended main secret
 	cipherSuite          *cipherSuite
 	ocspResponse         []byte // stapled OCSP response
 	sctList              []byte // signed certificate timestamp list
@@ -57,7 +57,7 @@ type Conn struct {
 	clientCertSignatureHash uint8
 
 	clientRandom, serverRandom [32]byte
-	masterSecret               [48]byte
+	mainSecret               [48]byte
 
 	clientProtocol         string
 	clientProtocolFallback bool
@@ -1405,6 +1405,6 @@ func (c *Conn) ExportKeyingMaterial(length int, label, context []byte, useContex
 		seed = append(seed, context...)
 	}
 	result := make([]byte, length)
-	prfForVersion(c.vers, c.cipherSuite)(result, c.masterSecret[:], label, seed)
+	prfForVersion(c.vers, c.cipherSuite)(result, c.mainSecret[:], label, seed)
 	return result, nil
 }

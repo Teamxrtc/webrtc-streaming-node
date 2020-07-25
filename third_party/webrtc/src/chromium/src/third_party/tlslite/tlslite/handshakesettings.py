@@ -115,9 +115,9 @@ class HandshakeSettings(object):
     @type enableChannelID: bool
     @ivar enableChannelID: If true, the server supports channel ID.
 
-    @type enableExtendedMasterSecret: bool
-    @ivar enableExtendedMasterSecret: If true, the server supports the extended
-    master secret TLS extension and will negotiated it with supporting clients.
+    @type enableExtendedMainSecret: bool
+    @ivar enableExtendedMainSecret: If true, the server supports the extended
+    main secret TLS extension and will negotiated it with supporting clients.
 
     @type supportedTokenBindingParams: list
     @ivar supportedTokenBindingParams: A list of token binding parameters that
@@ -144,7 +144,7 @@ class HandshakeSettings(object):
         self.useExperimentalTackExtension = False
         self.alertAfterHandshake = False
         self.enableChannelID = True
-        self.enableExtendedMasterSecret = True
+        self.enableExtendedMainSecret = True
         self.supportedTokenBindingParams = []
 
     # Validates the min/max fields, and certificateTypes
@@ -164,7 +164,7 @@ class HandshakeSettings(object):
         other.tlsIntoleranceType = self.tlsIntoleranceType
         other.alertAfterHandshake = self.alertAfterHandshake
         other.enableChannelID = self.enableChannelID
-        other.enableExtendedMasterSecret = self.enableExtendedMasterSecret
+        other.enableExtendedMainSecret = self.enableExtendedMainSecret
         other.supportedTokenBindingParams = self.supportedTokenBindingParams
 
         if not cipherfactory.tripleDESPresent:

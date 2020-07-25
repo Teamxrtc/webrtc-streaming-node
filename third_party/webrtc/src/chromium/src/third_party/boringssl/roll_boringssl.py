@@ -71,7 +71,7 @@ def main():
     commit = RevParse(BORINGSSL_SRC_PATH, sys.argv[1])
   else:
     subprocess.check_call(['git', 'fetch', 'origin'], cwd=BORINGSSL_SRC_PATH)
-    commit = RevParse(BORINGSSL_SRC_PATH, 'origin/master')
+    commit = RevParse(BORINGSSL_SRC_PATH, 'origin/main')
 
   head = RevParse(BORINGSSL_SRC_PATH, 'HEAD')
   if head == commit:

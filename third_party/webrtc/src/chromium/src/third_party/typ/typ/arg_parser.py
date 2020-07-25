@@ -96,8 +96,8 @@ class ArgumentParser(argparse.ArgumentParser):
             self.add_argument('--coverage-show-missing', action='store_true',
                               help=('Show missing line ranges in coverage '
                                     'report.'))
-            self.add_argument('--master-name',
-                              help=('Buildbot master name to include in the '
+            self.add_argument('--main-name',
+                              help=('Buildbot main name to include in the '
                                     'uploaded data.'))
             self.add_argument('--metadata', action='append', default=[],
                               help=('Optional key=value metadata that will '
@@ -184,8 +184,8 @@ class ArgumentParser(argparse.ArgumentParser):
                 self._print_message('Error: --builder-name must be specified '
                                     'along with --test-result-server')
                 self.exit_status = 2
-            if not rargs.master_name:
-                self._print_message('Error: --master-name must be specified '
+            if not rargs.main_name:
+                self._print_message('Error: --main-name must be specified '
                                     'along with --test-result-server')
                 self.exit_status = 2
             if not rargs.test_type:

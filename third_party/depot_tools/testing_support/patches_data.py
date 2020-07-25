@@ -84,7 +84,7 @@ class RAW(object):
   # http://codereview.chromium.org/api/7530007/5001
   # http://codereview.chromium.org/download/issue7530007_5001_4011.diff
   CRAP_ONLY = (
-      'Index: scripts/master/factory/skia/__init__.py\n'
+      'Index: scripts/main/factory/skia/__init__.py\n'
       '===================================================================\n')
 
   TWO_HUNKS = (
@@ -115,10 +115,10 @@ class RAW(object):
 
   # http://codereview.chromium.org/download/issue9091003_9005_8009.diff
   DIFFERENT = (
-      'Index: master/unittests/data/processes-summary.dat\n'
+      'Index: main/unittests/data/processes-summary.dat\n'
       '===================================================================\n'
-      '--- master/unittests/data/processes-summary.dat\t(revision 116240)\n'
-      '+++ master/unittests/data/processes-summary.dat\t(working copy)\n'
+      '--- main/unittests/data/processes-summary.dat\t(revision 116240)\n'
+      '+++ main/unittests/data/processes-summary.dat\t(working copy)\n'
       '@@ -1 +1 @@\n'
       '-{"traces": {"1t_proc": ["2.0", "0.0"], "1t_proc_ref": ["1.0", ...\n'
       '+{"traces": {"1t_proc": ["2.0", "0.0"], "1t_proc_ref": ["1.0", ...\n')
